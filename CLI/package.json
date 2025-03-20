@@ -1,0 +1,27 @@
+{
+  "name": "task-tracker",
+  "version": "1.0.0",
+  "description": "A task tracker CLI tool",
+  "main": "Index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "CLI"
+  ],
+  "bin": {
+    "Task-tracker": "./Index.ts"
+  },
+  "author": "Lawrence Muchiri",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "json-server": "^1.0.0-beta.3",
+    "winston": "^3.17.0"
+  }
+}

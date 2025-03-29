@@ -145,7 +145,18 @@ if (process.argv.length <= 2) {
       );
 
     githubRequest.on("error", (error) => {
-      console.log(error);
+      if (error.message.includes("ENOTFOUND")) {
+        console.log(
+          chalk.redBright.underline("No internet Connection") + ",",
+          "please reconnect to fetch data."
+        );
+      } else {
+        console.log(
+          "An error occured during the request, pleaase try again later" +
+            "\n" +
+            error.message
+        );
+      }
     });
     githubRequest.end();
   } else

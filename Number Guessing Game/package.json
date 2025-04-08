@@ -1,0 +1,24 @@
+{
+  "name": "number-guessing-game",
+  "version": "1.0.0",
+  "main": "Index.ts",
+  "scripts": {
+    "dev": "npx tsx Index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "Number Guessing Game": "./Index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}

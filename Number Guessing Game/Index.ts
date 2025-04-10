@@ -2,61 +2,121 @@
 import { EventEmitter } from "node:events";
 import { createInterface, Interface } from "node:readline";
 import * as fs from "fs/promises";
+import path from "node:path";
 import * as chalk from "chalk";
 
 type Difficulty = null | "easy" | "medium" | "hard";
 type HighScore = {
   Round: number;
-  Status: "win" | "lose";
-  RepeatTimes: number;
+  Times: number;
   Highscore: number;
 };
 
-let guessAttempts = 0;
-let timer = 0;
-let timerHandler: NodeJS.Timeout;
-let correctAnswer: number;
-let currentDifficulty: Difficulty = null;
+let guessAttempts = 0,
+  timer = 0,
+  timerHandler: NodeJS.Timeout,
+  correctAnswer: number,
+  currentDifficulty: Difficulty = null,
+  currentHighscore: Partial<HighScore> = {
+    Highscore: 0,
+    Times: 0,
+  };
 
-const generateAnswer = (): number => Math.floor(Math.random() * 100) + 1;
-
-const gameEvents: EventEmitter = new EventEmitter();
-const inputInterface: Interface = createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-const retry = (status: "win" | "lose", time: number, answer: number): void => {
-  if (status == "win") {
-    console.log(
-      chalk.greenBright(`\nCorrect! It took you ${time}s to figure it out.\n`)
-    );
-  } else {
-    console.log(
-      chalk.redBright("\nYou lose. ") +
-        chalk.gray(`The correct answer was ${answer}\n`)
-    );
-  }
-
-  clearInterval(timerHandler);
-  timer = 0;
-
-  inputInterface.question("Want to try again (y/n): ", (response: string) => {
-    if (response.toLowerCase().includes("y")) {
-      guessAttempts = 0;
-      gameEvents.emit("Begin");
-    } else {
-      console.log(chalk.whiteBright.underline("\nThank you for playing!\n"));
-      process.exit(0);
-    }
+const generateAnswer = (): number => Math.floor(Math.random() * 100) + 1,
+  gameEvents: EventEmitter = new EventEmitter(),
+  inputInterface: Interface = createInterface({
+    input: process.stdin,
+    output: process.stdout,
   });
-};
+
+const retry = async (
+    status: "win" | "lose",
+    time: number,
+    answer: number
+  ): Promise<void> => {
+    try {
+      if (status == "win") {
+        console.log(
+          chalk.greenBright(
+            `\nCorrect! It took you ${time}s to figure it out.\n`
+          )
+        );
+      } else {
+        console.log(
+          chalk.redBright("\nYou lose. ") +
+            chalk.gray(`The correct answer was ${answer}\n`)
+        );
+      }
+
+      clearInterval(timerHandler);
+      timer = 0;
+
+      inputInterface.question(
+        "Want to try again (y/n): ",
+        async (response: string) => {
+          if (response.toLowerCase().includes("y")) {
+            guessAttempts = 0;
+            gameEvents.emit("Begin");
+          } else {
+            console.log(
+              chalk.whiteBright.underline("\nThank you for playing!\n")
+            );
+            highscoreWrite().then(() => process.exit(0));
+          }
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  highscoreWrite = async () => {
+    let highscores: { Highscores: HighScore[] } = JSON.parse(
+      await fs.readFile(path.join(__dirname, "Highscores.json"), {
+        encoding: "utf-8",
+      })
+    );
+
+    currentHighscore.Round = highscores.Highscores.length + 1;
+    highscores.Highscores.push(currentHighscore as HighScore);
+    highscores.Highscores.sort(
+      (previous, current) => current.Highscore - previous.Highscore
+    );
+
+    await fs.writeFile(
+      path.join(__dirname, "Highscores.json"),
+      JSON.stringify({
+        ...highscores,
+      })
+    );
+  };
+
+gameEvents.once("Highscore Storage", async () => {
+  try {
+    await fs.writeFile(
+      "./Highscores.json",
+      JSON.stringify({
+        Highscores: [],
+      }),
+      {
+        flag: "wx",
+      }
+    );
+  } catch (error: any) {
+    if (error.code == "EEXIST") {
+      return;
+    }
+    console.log(chalk.redBright("Error in creating file, try again"));
+    console.log(error);
+    return;
+  }
+});
 
 gameEvents.on("Begin", () => {
   console.clear();
   guessAttempts = 0;
   currentDifficulty = null;
   correctAnswer = generateAnswer();
+
   console.log(
     chalk.whiteBright.bold.underline("\nNumber-guessing game\n\n") +
       chalk.whiteBright("I'm thinking of a number between 1 and 100\n") +
@@ -88,6 +148,7 @@ gameEvents.on("Begin", () => {
 gameEvents.on("Attempts", (difficulty: Difficulty) => {
   const maxAttempts =
     difficulty === "easy" ? 10 : difficulty === "medium" ? 5 : 3;
+  (currentHighscore.Times as number) += 1;
 
   console.log(
     chalk.whiteBright(
@@ -152,6 +213,8 @@ gameEvents.on("Attempts", (difficulty: Difficulty) => {
 gameEvents.on(
   "Correct",
   (time: number, answer: number, difficulty: Difficulty) => {
+    (currentHighscore.Highscore as number) +=
+      difficulty == "easy" ? 1 : difficulty == "medium" ? 2 : 3;
     retry("win", time, answer);
   }
 );
@@ -161,3 +224,4 @@ gameEvents.on("Lose", (time: number, answer: number) => {
 });
 
 gameEvents.emit("Begin");
+gameEvents.emit("Highscore Storage");

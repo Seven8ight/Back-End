@@ -29,7 +29,7 @@ const mimeTypes: Record<string, string> = {
   ".css": "text/css",
   ".js": "application/javascript",
 };
-
+console.log("");
 const port = process.env.PORT,
   Server = http.createServer(
     async (
@@ -70,7 +70,7 @@ const port = process.env.PORT,
             case "Celcius":
               if (convertData.to == "Farenheit") result = result * (9 / 5) + 32;
               else if (convertData.to == "Celcius") result = result;
-              else if (convertData.to == "Kelvin") result = result + 273;
+              else if (convertData.to == "Kelvin") result += 273;
               else {
                 result = 0;
                 converted = false;
@@ -88,7 +88,7 @@ const port = process.env.PORT,
               }
               break;
             case "Kelvin":
-              if (convertData.to == "Celcius") result = result - 273;
+              if (convertData.to == "Celcius") result -= 273;
               else if (convertData.to == "Farenheit")
                 result = (result - 273) * (9 / 5) + 32;
               else {
@@ -97,7 +97,7 @@ const port = process.env.PORT,
               }
               break;
             case "Kg":
-              if (convertData.to == "Lb") result = result * 2.205;
+              if (convertData.to == "Lb") result *= 2.205;
               else if (convertData.to == "Kg") result = result;
               else {
                 result = 0;
@@ -105,7 +105,7 @@ const port = process.env.PORT,
               }
               break;
             case "Lb":
-              if (convertData.to == "Kg") result = result / 2.205;
+              if (convertData.to == "Kg") result /= 2.205;
               else if (convertData.to == "Lb") result = result;
               else {
                 result = 0;
@@ -113,11 +113,11 @@ const port = process.env.PORT,
               }
               break;
             case "Metre":
-              if (convertData.to == "Feet") result = result * 3.281;
+              if (convertData.to == "Feet") result *= 3.281;
               else if (convertData.to == "Metre") result = result;
-              else if (convertData.to == "Centimetre") result = result * 100;
-              else if (convertData.to == "Millimetre") result = result * 1000;
-              else if (convertData.to == "Yard") result = result * 1.094;
+              else if (convertData.to == "Centimetre") result *= 100;
+              else if (convertData.to == "Millimetre") result *= 1000;
+              else if (convertData.to == "Yard") result *= 1.094;
               else {
                 result = 0;
                 converted = false;
@@ -125,9 +125,9 @@ const port = process.env.PORT,
               break;
             case "Centimetre":
               if (convertData.to == "Feet") result = (result / 100) * 3.281;
-              else if (convertData.to == "Metre") result = result / 100;
+              else if (convertData.to == "Metre") result /= 100;
               else if (convertData.to == "Centimetre") result = result;
-              else if (convertData.to == "Millimetre") result = result * 10;
+              else if (convertData.to == "Millimetre") result *= 10;
               else if (convertData.to == "Yard")
                 result = (result / 100) * 1.094;
               else {
@@ -138,7 +138,7 @@ const port = process.env.PORT,
             case "Millimetre":
               if (convertData.to == "Feet") result = (result / 1000) * 3.281;
               else if (convertData.to == "Metre") result = result / 1000;
-              else if (convertData.to == "Centimetre") result = result / 10;
+              else if (convertData.to == "Centimetre") result /= 10;
               else if (convertData.to == "Millimetre") result = result;
               else if (convertData.to == "Yard")
                 result = (result / 1000) * 1.094;
@@ -154,7 +154,7 @@ const port = process.env.PORT,
                 result = (result / 3.281) * 1000;
               else if (convertData.to == "Centimetre")
                 result = (result / 3.281) * 100;
-              else if (convertData.to == "Yard") result = result / 3;
+              else if (convertData.to == "Yard") result /= 3;
               else {
                 result = 0;
                 converted = false;
@@ -176,7 +176,7 @@ const port = process.env.PORT,
             JSON.stringify({
               Initial: convertData.unit,
               InitialUnit: convertData.from,
-              Result: Math.floor(result),
+              Result: Number.parseInt(result.toPrecision(3)),
               Converted: converted,
               Unit: convertData.to,
             })

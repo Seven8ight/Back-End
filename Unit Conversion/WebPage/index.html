@@ -4,52 +4,103 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/WebPage/styles.css" />
+    <script
+      src="https://kit.fontawesome.com/9e14e23008.js"
+      crossorigin="anonymous"
+    ></script>
     <title>Unit Conversion</title>
   </head>
   <body>
-    <div id="container">
-      <header>
-        <h1>Unit conversion</h1>
-      </header>
-      <div id="form">
-        <form method="post" id="conversion" action="/convert">
-          <input name="unit" type="text" placeholder="34" required />
-          <br />
-          <div id="selects">
-            <label for="from">From:</label>
-            <select name="from">
-              <option value="Celcius">Celcius</option>
-              <option value="Farenheit">Farenheit</option>
-              <option value="Kelvin">Kelvin</option>
-              <option value="Metre">Meter</option>
-              <option value="Centimetre">CentiMetre</option>
-              <option value="Millimetre">Millimetre</option>
-              <option value="Feet">Feet</option>
-              <option value="Yard">Yard</option>
-              <option value="Kg">Kg</option>
-              <option value="Lb">Lb</option>
-            </select>
-            <label for="to">To:</label>
-            <select name="to">
-              <option value="Celcius">Celcius</option>
-              <option value="Farenheit">Farenheit</option>
-              <option value="Kelvin">Kelvin</option>
-              <option value="Metre">Meter</option>
-              <option value="Centimetre">Centimetre</option>
-              <option value="Millimetre">Millimetre</option>
-              <option value="Feet">Feet</option>
-              <option value="Yard">Yard</option>
-              <option value="Kg">Kg</option>
-              <option value="Lb">Lb</option>
-            </select>
+    <header>
+      <h1>Unit converter</h1>
+    </header>
+    <div id="conversion-form">
+      <form>
+        <div id="inputs">
+          <div class="from" id="units">
+            <label>From</label>
+            <div id="btns">
+              <button type="button">
+                <span id="capital">C</span><span id="small">elcius</span>
+              </button>
+              <button type="button">
+                <span id="capital">F</span><span id="small">arenheit</span>
+              </button>
+              <button type="button">
+                <span id="capital">K</span><span id="small">elvin</span>
+              </button>
+              <button type="button">
+                <span id="capital">M</span><span id="small">etre</span>
+              </button>
+              <button type="button">
+                <span id="capital">C</span><span id="small">entimetre</span>
+              </button>
+              <button type="button">
+                <span id="capital">M</span><span id="small">illimetre</span>
+              </button>
+              <button type="button">
+                <span id="capital">F</span><span id="small">eet</span>
+              </button>
+              <button type="button">
+                <span id="capital">Y</span><span id="small">ard</span>
+              </button>
+              <button type="button">
+                <span id="capital">K</span><span id="small">g</span>
+              </button>
+              <button type="button">
+                <span id="capital">L</span><span id="small">b</span>
+              </button>
+            </div>
+            <div id="underliner"></div>
           </div>
-          <br />
-          <button type="submit" id="submit">Submit</button>
-        </form>
+          <div class="to" id="units2">
+            <label>To</label>
+            <div id="btns">
+              <button type="button">
+                <span id="capital">C</span><span id="small">elcius</span>
+              </button>
+              <button type="button">
+                <span id="capital">F</span><span id="small">arenheit</span>
+              </button>
+              <button type="button">
+                <span id="capital">K</span><span id="small">elvin</span>
+              </button>
+              <button type="button">
+                <span id="capital">M</span><span id="small">etre</span>
+              </button>
+              <button type="button">
+                <span id="capital">C</span><span id="small">entimetre</span>
+              </button>
+              <button type="button">
+                <span id="capital">M</span><span id="small">illimetre</span>
+              </button>
+              <button type="button">
+                <span id="capital">F</span><span id="small">eet</span>
+              </button>
+              <button type="button">
+                <span id="capital">Y</span><span id="small">ard</span>
+              </button>
+              <button type="button">
+                <span id="capital">K</span><span id="small">g</span>
+              </button>
+              <button type="button">
+                <span id="capital">L</span><span id="small">b</span>
+              </button>
+            </div>
+            <div id="underliner2"></div>
+          </div>
+          <div id="numerical-input">
+            <label id="inputLabel" for="number">Input</label>
+            <br />
+            <input id="input" name="number" type="text" />
+          </div>
+        </div>
+        <button type="submit"><i class="fa-solid fa-arrow-right"></i></button>
+      </form>
+      <div id="output">
+        <h1>Result</h1>
+        <p>Output here</p>
       </div>
-    </div>
-    <div id="result">
-      <h1>Results</h1>
     </div>
     <script src="/WebPage/script.js"></script>
   </body>

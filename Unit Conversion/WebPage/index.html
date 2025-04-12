@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/WebPage/styles.css" />
+    <title>Unit Conversion</title>
+  </head>
+  <body>
+    <div id="container">
+      <header>
+        <h1>Unit conversion</h1>
+      </header>
+      <div id="form">
+        <form method="post" id="conversion" action="/convert">
+          <input name="unit" type="text" placeholder="34" required />
+          <br />
+          <div id="selects">
+            <label for="from">From:</label>
+            <select name="from">
+              <option value="Celcius">Celcius</option>
+              <option value="Farenheit">Farenheit</option>
+              <option value="Kelvin">Kelvin</option>
+              <option value="Metre">Meter</option>
+              <option value="Centimetre">CentiMetre</option>
+              <option value="Millimetre">Millimetre</option>
+              <option value="Feet">Feet</option>
+              <option value="Yard">Yard</option>
+              <option value="Kg">Kg</option>
+              <option value="Lb">Lb</option>
+            </select>
+            <label for="to">To:</label>
+            <select name="to">
+              <option value="Celcius">Celcius</option>
+              <option value="Farenheit">Farenheit</option>
+              <option value="Kelvin">Kelvin</option>
+              <option value="Metre">Meter</option>
+              <option value="Centimetre">Centimetre</option>
+              <option value="Millimetre">Millimetre</option>
+              <option value="Feet">Feet</option>
+              <option value="Yard">Yard</option>
+              <option value="Kg">Kg</option>
+              <option value="Lb">Lb</option>
+            </select>
+          </div>
+          <br />
+          <button type="submit" id="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+    <div id="result">
+      <h1>Results</h1>
+    </div>
+    <script src="/WebPage/script.js"></script>
+  </body>
+</html>

@@ -117,16 +117,16 @@ const input = document.querySelector<HTMLInputElement>("#input"),
     }
   };
 
+if (fromUnitBtns && toUnitBtns) {
+  Array.from(fromUnitBtns?.children).forEach(() => highlightBtn(fromUnitBtns));
+  Array.from(toUnitBtns.children).forEach(() => highlightBtn(toUnitBtns));
+}
+
 if (convertForm)
   convertForm.addEventListener("submit", async (event: SubmitEvent) => {
     event.preventDefault();
 
     if (fromUnitBtns && toUnitBtns && input && resultP) {
-      Array.from(fromUnitBtns?.children).forEach(() =>
-        highlightBtn(fromUnitBtns)
-      );
-      Array.from(toUnitBtns.children).forEach(() => highlightBtn(toUnitBtns));
-
       if (Number.isNaN(Number.parseFloat(input.value))) {
         resultP.innerHTML = "Invalid Input entered, enter only numbers";
         resultP.style.fontSize = "15px";
@@ -144,7 +144,8 @@ if (convertForm)
         })
           .then((response) => response.json() as unknown as responseBody)
           .then((results) => {
-            console.log(results);
+            if (results.Converted)
+              resultP.innerHTML = `${results.Result} ${results.Unit}`;
           });
       }
     }

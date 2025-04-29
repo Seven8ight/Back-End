@@ -1,0 +1,11 @@
+{
+  "Users": [
+    {
+      "id": 1,
+      "name": "Lawrence Muchiri",
+      "email": "llwmuchiri@gmail.com",
+      "password": "Davidwan1*",
+      "role": "admin"
+    }
+  ]
+}

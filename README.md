@@ -9,3 +9,8 @@
 3. Expense Tracker - https://roadmap.sh/projects/expense-tracker
 4. Number guessing game - https://roadmap.sh/projects/number-guessing-game
 5. Unit conversion - https://roadmap.sh/projects/unit-converter
+6. Personal Tracker - https://roadmap.sh/projects/personal-blog
+   1. To run simply type in
+      `npm run begin` in terminal.
+
+NB: Personal tracker contains blog json file that takes up space.

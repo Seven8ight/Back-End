@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://kit.fontawesome.com/9e14e23008.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+    <style>
+      header {
+        width: 70vw;
+        margin: auto;
+        border-bottom: 1px solid black;
+        position: relative;
+      }
+      header h1 {
+        font-family: "Dancing Script", sans-serif;
+        text-align: center;
+      }
+      header button {
+        position: absolute;
+        bottom: 35%;
+        font-size: 20px;
+        border: none;
+        background: transparent;
+      }
+      #articleForm {
+        width: 50vw;
+        margin: 10px auto;
+        text-align: center;
+      }
+      #articleForm label {
+        position: absolute;
+        left: 30%;
+        font-family: "Roboto Flex", sans-serif;
+      }
+      #articleForm input {
+        position: absolute;
+        right: 20%;
+        border: none;
+        background: transparent;
+        border-bottom: 1px solid black;
+      }
+      h2 {
+        font-family: "Cookie", sans-serif;
+      }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 13vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 40%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
+      #widget button {
+        display: block;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <button onclick="history.back()">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <h1>New article</h1>
+    </header>
+    <div id="articleForm">
+      <form id="actualForm">
+        <label>Blog Title</label>
+        <input
+          type="text"
+          name="Blogtitle"
+          placeholder="Something here"
+          required
+        />
+        <br />
+        <label>Image Placeholder</label>
+        <input type="file" name="Image" accept="png,jpeg,jpg" required />
+        <br />
+        <h2>Articles</h2>
+        <div id="articles">
+          <div id="article">
+            <label>Article Title</label>
+            <input type="text" name="Title-1" />
+            <br />
+            <label>Article Content</label>
+            <textarea name="Content-1"></textarea>
+          </div>
+        </div>
+        <button type="button" id="articleBtn">Add article</button>
+        <button type="submit">Complete article</button>
+      </form>
+    </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
+      </div>
+    </div>
+    <script>
+      const articleForm = document.getElementById("actualForm"),
+        addArticleBtn = document.getElementById("articleBtn"),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p"),
+        widgetOpen = (message) => {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = message;
+        },
+        fileReader = new FileReader();
+
+      let send = true;
+
+      addArticleBtn.addEventListener("click", () => {
+        const articleInput = document.getElementById("article"),
+          articleSection = articleInput.cloneNode(true),
+          articleContainer = document.getElementById("articles");
+
+        articleContainer.appendChild(articleSection);
+
+        Array.from(articleContainer.children).forEach((divElement, index) => {
+          Array.from(divElement.children).forEach((element) => {
+            if (element instanceof HTMLInputElement)
+              element.name = `Title-${index + 1}`;
+            else if (element instanceof HTMLTextAreaElement)
+              element.name = `Content-${index + 1}`;
+          });
+        });
+      });
+
+      articleForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(articleForm),
+          articleData = {
+            Content: [],
+          };
+        let articleContent = {};
+
+        formData.forEach((value, key) => {
+          if (key == "Image") {
+            if (!value.type.includes("image/")) {
+              send = false;
+              widgetOpen("Place in an image for the blog");
+              return false;
+            } else {
+              fileReader.onload = (event) => {
+                const base64String = event.target.result;
+
+                if (typeof base64String == "string")
+                  articleData["Image"] = base64String;
+              };
+
+              fileReader.onerror = (event) => {
+                console.log("Error occured");
+              };
+
+              fileReader.readAsDataURL(value);
+            }
+          } else if (key.includes("title")) {
+          } else if (key.includes("Title") || key.includes("Content")) {
+            if (key.includes("Title") && value.length > 0) {
+              if (value.length > 0) articleContent["Title"] = value;
+              else {
+                send = false;
+                widgetOpen("Ensure all title fields are filled");
+              }
+            } else {
+              if (value.length > 0) articleContent["Content"] = value;
+              else {
+                send = false;
+                widgetOpen("Ensure all text fields are filled");
+              }
+            }
+
+            if (articleContent.Title && articleContent.Content) {
+              articleData.Content.push(articleContent);
+              articleContent = {};
+            }
+          } else {
+            if (key.includes("Blog")) {
+              if (typeof value !== "string" || value.trim().length === 0) {
+                widgetOpen("Blog title should be present");
+                send = false;
+              } else {
+                articleData["Blogtitle"] = value;
+              }
+            }
+          }
+        });
+
+        fileReader.onloadend = async () => {
+          if (send) {
+            let addBlogRequest = await fetch(
+              "http://localhost:3000/article/articlenew",
+              {
+                method: "POST",
+                body: JSON.stringify(articleData),
+              }
+            );
+
+            if (addBlogRequest.status == 200) {
+              widgetOpen("Successfully added, redirect in 25s");
+              setTimeout(
+                () => (window.location = "http://localhost:3000"),
+                25000
+              );
+            } else widgetOpen(await addBlogRequest.json().message);
+          } else send = true;
+        };
+      });
+    </script>
+  </body>
+</html>

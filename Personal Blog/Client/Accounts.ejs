@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+    <style>
+      #form h1 {
+        text-align: center;
+        font-family: "Lobster Two", sans-serif;
+      }
+      #form {
+        margin: auto;
+        width: 32.5vw;
+        height: 50vh;
+        padding: 20px;
+        box-shadow: 2px 2px 5px 0px rgb(200, 200, 200);
+        border-radius: 10px;
+        position: relative;
+        top: 25vh;
+      }
+      #form > #selectors {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      #form #highlighter {
+        position: absolute;
+        bottom: -25%;
+        width: 20%;
+        height: 140%;
+        border-radius: 20px;
+        z-index: -1;
+        background-color: burlywood;
+        transition: transform 0.5s ease-in-out;
+      }
+      #form input:not([type="radio"]) {
+        margin: 5px 0px 30px 50px;
+        width: 200px;
+        border: none;
+        border-bottom: 1px solid black;
+        padding: 2.5px;
+        font-family: "Roboto Flex", sans-serif;
+        text-align: center;
+        font-size: 17px;
+      }
+      #form input:not([type="radio"])::placeholder {
+        font-family: "Cookie", sans-serif;
+      }
+      #form input:not([type="radio"]):focus {
+        outline: none;
+      }
+      #form > #selectors {
+        position: relative;
+        left: 10px;
+      }
+      #form > #selectors button {
+        padding: 10px;
+        border: none;
+        background: transparent;
+        font-size: 18px;
+      }
+      #form > #selectors > div {
+        margin-right: 20px;
+      }
+      #form #Login,
+      #form #Signup {
+        margin: auto;
+        padding: 5px;
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #form #highlighter.login {
+        transform: translateX(45px);
+      }
+      #form #highlighter.signup {
+        transform: translateX(-40px);
+      }
+      #form #Login.visible,
+      #form #Signup.visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #form #Login {
+        position: relative;
+        top: 20px;
+      }
+      #form #Signup {
+        opacity: 0;
+      }
+      #form #Signup label,
+      #form #Signup input,
+      #form #Login label,
+      #form #Login input {
+        position: relative;
+        left: 85px;
+      }
+      #form #Signup label,
+      #form #Login label {
+        font-family: "Lobster Two", sans-serif;
+      }
+      #form #Signup button,
+      #form #Login button {
+        position: relative;
+        left: 13vw;
+        bottom: 0.5vh;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 20px;
+        transition: color 0.5s ease-in;
+      }
+      #form #Signup button::before,
+      #form #Login button::before {
+        content: "";
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        border-radius: 10px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: -1;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.5s ease-in-out;
+      }
+      #form #Signup button:hover,
+      #form #Login button:hover {
+        color: white;
+      }
+      #form #Signup button:hover::before,
+      #form #Login button:hover::before {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+      #form #Login input {
+        margin-bottom: 50px !important;
+      }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 10vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 50%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="form">
+      <h1>Inclyblogs</h1>
+      <div id="selectors">
+        <div>
+          <button id="signupSelect">Signup</button>
+        </div>
+        <div id="login">
+          <button id="loginSelect">Login</button>
+        </div>
+        <div id="highlighter"></div>
+      </div>
+      <div id="Signup">
+        <form id="signupForm">
+          <label>Name </label>
+          <br />
+          <input
+            type="text"
+            name="Name"
+            placeholder="John Doe"
+            required
+            minlength="3"
+          />
+          <br />
+          <label>Email </label>
+          <br />
+          <input
+            type="email"
+            name="Email"
+            placeholder="example@example.com"
+            required
+          />
+          <br />
+          <label>Password </label>
+          <br />
+          <input
+            type="password"
+            name="Password"
+            placeholder="curry23pizza*()"
+            required
+          />
+          <br />
+          <button type="submit" id="signupBtn">Sign up</button>
+        </form>
+      </div>
+      <div id="Login">
+        <form id="loginForm">
+          <label>Email</label>
+          <br />
+          <input type="email" name="Email" placeholder="John Doe" required />
+          <br />
+          <label>Password</label>
+          <br />
+          <input
+            type="password"
+            name="Password"
+            placeholder="Your pass here"
+            required
+            minlength="3"
+            maxlength="16"
+          />
+          <br />
+          <button type="submit" id="loginBtn">Login</button>
+        </form>
+      </div>
+    </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
+      </div>
+    </div>
+    <script>
+      const signupForm = document.querySelector("#signupForm"),
+        loginForm = document.querySelector("#loginForm"),
+        signupSelectionBtn = document.querySelector("#signupSelect"),
+        loginSelectionBtn = document.querySelector("#loginSelect"),
+        signupDiv = document.querySelector("#Signup"),
+        loginDiv = document.querySelector("#Login"),
+        highlighter = document.querySelector("#highlighter"),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p");
+
+      signupDiv.classList.add("visible");
+      highlighter.classList.add("signup");
+
+      signupSelectionBtn.addEventListener("click", () => {
+        if (!signupDiv.classList.contains("visible")) {
+          loginDiv.classList.remove("visible");
+          signupDiv.classList.add("visible");
+
+          if (highlighter.classList.contains("login")) {
+            highlighter.classList.remove("login");
+          }
+          highlighter.classList.add("signup");
+        }
+      });
+      loginSelectionBtn.addEventListener("click", () => {
+        if (!loginDiv.classList.contains("visible")) {
+          signupDiv.classList.remove("visible");
+          loginDiv.classList.add("visible");
+          highlighter.classList.add("login");
+
+          if (highlighter.classList.contains("signup"))
+            highlighter.classList.remove("signup");
+
+          highlighter.classList.add("login");
+        }
+      });
+      const formSubmission = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+      };
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+
+        let loginRequest = await fetch("http://localhost:3000/auth/login", {
+            method: "POST",
+            body: JSON.stringify({
+              email: formData.get("Email"),
+              password: formData.get("Password"),
+            }),
+          }),
+          serverResponse = await loginRequest.json();
+
+        if (loginRequest.status == 200) {
+          window.localStorage.setItem("name", serverResponse.name);
+          window.localStorage.setItem("email", serverResponse.email);
+          window.localStorage.setItem("role", serverResponse.role);
+
+          window.location = "http://localhost:3000";
+        } else {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = serverResponse.message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        }
+      });
+      signupForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+
+        let signupRequest = await fetch("http://localhost:3000/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({
+              name: formData.get("Name"),
+              email: formData.get("Email"),
+              password: formData.get("Password"),
+            }),
+          }),
+          serverResponse = await signupRequest.json();
+
+        if (signupRequest.status == 201) {
+          window.localStorage.setItem("name", serverResponse.name);
+          window.localStorage.setItem("email", serverResponse.email);
+          window.localStorage.setItem("role", serverResponse.role);
+
+          window.location = "http://localhost:3000";
+        } else {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = serverResponse.message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<div id="intro">
+  <div id="greetings">
+    <h1>Greetings</h1>
+    <div id="extra">
+      <p>
+        Welcome to my blog page, initially named using an alias,<br />
+        here i post my experiences in life and some extra insights learned in my
+        days
+      </p>
+      <p>Dive into some of my blogs for some insights into my life and more</p>
+    </div>
+  </div>
+  <div id="header">Blogs</div>
+</div>
+
+<div id="articles">
+  <% for(let article of articles) { %>
+  <div id="card" class="<%=article.id%>">
+    <div id="banner">
+      <img src="<%=article.Image%>" />
+    </div>
+    <div id="text">
+      <div id="info">
+        <h1><%= article.Header %></h1>
+        <p><%= article.Date %></p>
+      </div>
+      <div id="content">
+        <p><%=(article.Content[0].Content.slice(0,15)) + " ........." %></p>
+      </div>
+    </div>
+  </div>
+  <% } %>
+  <div id="add">
+    <button id="addBlog"><i class="fa-solid fa-plus"></i></button>
+  </div>
+</div>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/9e14e23008.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Document</title>
+    <style>
+      #main {
+        width: 70vw;
+        margin: auto;
+        position: relative;
+        top: 5vh;
+      }
+      #main > header {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+      #main > header > button {
+        padding: 10px;
+        border: none;
+        background: transparent;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      #main > header {
+        width: 95%;
+        margin: auto;
+        border-bottom: 1px solid black;
+      }
+      #main > header > h1 {
+        font-family: "Dancing Script", sans-serif;
+        text-align: center;
+      }
+      #main > header > h2 {
+        font-family: "Cookie", sans-serif;
+      }
+      #articleOptions > div {
+        display: flex;
+        flex-direction: row;
+      }
+      #section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      #section h2 {
+        font-family: "Cookie", sans-serif;
+      }
+      #section > div > button {
+        border: none;
+        background: transparent;
+        font-size: 17px;
+        font-family: "Cookie", sans-serif;
+        cursor: pointer;
+      }
+      #form {
+        width: 100%;
+        height: 0px;
+        overflow: hidden;
+        transition: all.5s ease-in-out;
+        border-radius: 10px;
+        background-color: beige;
+      }
+      #form label {
+        font-family: "Roboto Flex", sans-serif;
+      }
+      #form label:first-of-type {
+        position: relative;
+        top: 10px;
+      }
+      #form input {
+        margin: 20px 10px 30px 10px;
+        width: 200px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid black;
+      }
+      #form input:focus {
+        outline: none;
+      }
+      #form input::placeholder {
+        text-align: center;
+        font-family: "Cookie", sans-serif;
+        font-size: 18px;
+      }
+      #form textarea {
+        margin-left: 20px;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        padding: 5px;
+        background: transparent;
+        width: 96%;
+        height: 120px;
+      }
+      #form button {
+        display: block;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        background: transparent;
+        cursor: pointer;
+        font-size: 16px;
+        position: relative;
+      }
+      #form button::before {
+        content: "";
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        border-radius: 10px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: -1;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.5s ease-in-out;
+      }
+      img {
+        width: 80%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+        display: block;
+        margin: 20px auto 20px auto;
+        position: relative;
+      }
+      #form button:hover {
+        color: white;
+      }
+      #form button:hover::before {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+      #form.open {
+        padding: 10px;
+        height: 320px;
+        box-shadow: 10px 10px 10px 0 rgba(200, 200, 200, 0.5);
+      }
+      #blogHeader,
+      #blogImage {
+        margin: 20px auto;
+        text-align: center;
+      }
+      #blogHeader label {
+        font-family: "Roboto Flex", sans-serif;
+      }
+      #blogHeader input {
+        background: transparent;
+        border-radius: 20px;
+        margin: 10px;
+        padding: 5px;
+      }
+      #blogHeader input::placeholder {
+        text-align: center;
+        font-family: "Cookie", sans-serif;
+        font-size: 18px;
+      }
+      #blogHeader button,
+      #blogImage button {
+        font-family: "Roboto Flex", sans-serif;
+        padding: 5px;
+        font-size: 16px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+      }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 10vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 50%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      <header>
+        <button onclick="history.back()" id="back">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <h1>Update</h1>
+        <h2><%=Header%></h2>
+      </header>
+      <div id="body">
+        <div id="blogHeader">
+          <label>Blog Title</label>
+          <input id="titleInput" type="text" placeholder="<%=Header%>" />
+          <button id="titleBtn">Change Title</button>
+        </div>
+        <div id="blogImage">
+          <img src="<%=Image%>" />
+          <input type="file" id="image-select" accept="jpeg,jpg,png,gif" />
+          <button id="imageBtn">Change Image</button>
+        </div>
+        <% for(let article of articles) {%>
+        <div id="group-article">
+          <div id="section">
+            <h2><%=article.ArticleHeader%></h2>
+            <div id="articleOptions">
+              <button id="openModal">Update</button>
+              <button id="deleteBtn">Delete</button>
+            </div>
+          </div>
+          <div id="form">
+            <form id="updateForm">
+              <label>Article Title</label>
+              <br />
+              <input type="text" placeholder="<%=article.ArticleHeader%>" />
+              <br />
+              <label>Content</label>
+              <br />
+              <textarea
+                name=""
+                placeholder="<%=article.Content%>"
+                id=""
+              ></textarea>
+              <br />
+              <button type="submit">Update</button>
+            </form>
+          </div>
+        </div>
+        <%} %>
+      </div>
+    </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
+      </div>
+    </div>
+    <script>
+      const modalOpeners = document.querySelectorAll("#openModal"),
+        deleteBtn = document.querySelectorAll("#deleteBtn"),
+        updateForm = document.querySelectorAll("#updateForm"),
+        titleInput = document.getElementById("titleInput"),
+        titleBtn = document.getElementById("titleBtn"),
+        imageInput = document.getElementById("image-select"),
+        imageBtn = document.getElementById("imageBtn"),
+        fileReader = new FileReader(),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p"),
+        widgetOpen = (message) => {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        };
+
+      modalOpeners.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          let currentModal = btn.parentElement.parentElement.parentElement;
+
+          Array.from(currentModal.children).forEach((element) => {
+            if (element.id == "form")
+              if (element.classList.contains("open"))
+                element.classList.remove("open");
+              else element.classList.add("open");
+          });
+        });
+      });
+
+      deleteBtn.forEach((btn, id) => {
+        btn.addEventListener("click", async () => {
+          let deleteRequest = await fetch(
+            `http://localhost:3000/article/articledelete/<%=BlogId%>`,
+            {
+              method: "DELETE",
+              body: JSON.stringify({
+                articleId: id,
+              }),
+            }
+          );
+
+          if (deleteRequest.status == 200) window.location.reload();
+        });
+      });
+
+      titleBtn.addEventListener("click", async () => {
+        const title = titleInput.value;
+
+        if (title.length <= 0) widgetOpen("Title should have a value");
+        else {
+          let updateBlogTitle = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  BlogTitle: title,
+                  ImageAddress: "",
+                  articleHeader: "",
+                  articleContent: "",
+                  articleId: null,
+                }),
+              }
+            ),
+            response = await updateBlogTitle.json();
+
+          widgetOpen(response.message);
+        }
+      });
+
+      imageBtn.addEventListener("click", async () => {
+        let imageAddress = "";
+
+        fileReader.onload = (event) => {
+          const base64String = event.target.result;
+
+          if (typeof base64String == "string") imageAddress = base64String;
+        };
+
+        fileReader.onerror = (event) =>
+          widgetOpen("Error occured on reading image, try again please");
+
+        fileReader.readAsDataURL(imageInput.files[0]);
+
+        fileReader.onloadend = async () => {
+          let updateImage = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  BlogTitle: "",
+                  ImageAddress: imageAddress,
+                  articleHeader: "",
+                  articleContent: "",
+                  articleId: null,
+                }),
+              }
+            ),
+            response = await updateImage.json();
+
+          widgetOpen(response.message);
+        };
+      });
+
+      updateForm.forEach((form, id) => {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          let articleHeader = event.target.children[2],
+            articleContent = event.target.children[6];
+
+          let updateRequest = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  articleHeader: articleHeader.value,
+                  articleContent: articleContent.value,
+                  articleId: id,
+                }),
+              }
+            ),
+            response = await updateRequest.json();
+
+          widgetOpen(response.message);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -15,9 +15,6 @@
       rel="stylesheet"
     />
     <style>
-      /* body {
-        background: url("./nnnoise-5.svg");
-      } */
       header,
       #article {
         margin: auto;
@@ -186,6 +183,44 @@
         height: 100%;
         background-color: black;
       }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 10vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 50%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
     </style>
   </head>
   <body>
@@ -223,6 +258,13 @@
         <%} %>
       </div>
     </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
+      </div>
+    </div>
     <script>
       const date = new Date(),
         timeTag = document.getElementById("time"),
@@ -233,16 +275,61 @@
         sectionsDiv = document.querySelectorAll("#section"),
         updateBtn = document.querySelector("#updateBtn"),
         currentArticle = document.querySelector("#article"),
-        deleteBtn = document.querySelector("#deleteBtn");
+        deleteBtn = document.querySelector("#deleteBtn"),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p");
+
+      const widgetOpen = (message) => {
+        widget.classList.add("open");
+        widgetMsg.innerHTML = message;
+
+        setTimeout(() => {
+          widget.classList.remove("open");
+        }, 2000);
+      };
 
       updateBtn.addEventListener("click", () => {
-        window.location = `http://localhost:3000/article/update/${currentArticle.className}`;
+        let user = window.localStorage.getItem("email");
+
+        if (!user) widgetOpen("Please log in or signup first");
+        else {
+          let role = window.localStorage.getItem("role");
+
+          if (role) {
+            if (role == "admin")
+              window.location = `http://localhost:3000/article/update/${currentArticle.className}`;
+            else widgetOpen("Admin use only");
+          }
+        }
       });
 
       optionsBtn.addEventListener("click", () => {
         if (optionsDiv.classList.contains("open"))
           optionsDiv.classList.remove("open");
         else optionsDiv.classList.add("open");
+      });
+
+      deleteBtn.addEventListener("click", async () => {
+        let user = window.localStorage.getItem("email");
+
+        if (!user) widgetOpen("Please log in or sign up first");
+        else {
+          let role = window.localStorage.getItem("role");
+
+          if (role) {
+            if (role == "admin") {
+              let deleteReq = await fetch(
+                `http://localhost:3000/article/delete/${currentArticle.className}`,
+                {
+                  method: "DELETE",
+                }
+              );
+
+              if (deleteReq.status == 204)
+                window.location = "http://localhost:3000";
+            } else widgetOpen("Admin use only");
+          }
+        }
       });
 
       sectionsDiv.forEach((section, index) => {

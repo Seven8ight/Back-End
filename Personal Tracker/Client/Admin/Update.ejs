@@ -177,6 +177,44 @@
         background: transparent;
         cursor: pointer;
       }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 10vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 50%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
     </style>
   </head>
   <body>
@@ -191,13 +229,13 @@
       <div id="body">
         <div id="blogHeader">
           <label>Blog Title</label>
-          <input type="text" placeholder="<%=Header%>" />
-          <button>Change Title</button>
+          <input id="titleInput" type="text" placeholder="<%=Header%>" />
+          <button id="titleBtn">Change Title</button>
         </div>
         <div id="blogImage">
           <img src="<%=Image%>" />
-          <input type="file" accept="jpeg,jpg,png,gif" />
-          <button>Change Image</button>
+          <input type="file" id="image-select" accept="jpeg,jpg,png,gif" />
+          <button id="imageBtn">Change Image</button>
         </div>
         <% for(let article of articles) {%>
         <div id="group-article">
@@ -205,11 +243,11 @@
             <h2><%=article.ArticleHeader%></h2>
             <div id="articleOptions">
               <button id="openModal">Update</button>
-              <button>Delete</button>
+              <button id="deleteBtn">Delete</button>
             </div>
           </div>
           <div id="form">
-            <form>
+            <form id="updateForm">
               <label>Article Title</label>
               <br />
               <input type="text" placeholder="<%=article.ArticleHeader%>" />
@@ -222,15 +260,40 @@
                 id=""
               ></textarea>
               <br />
-              <button>Update</button>
+              <button type="submit">Update</button>
             </form>
           </div>
         </div>
         <%} %>
       </div>
     </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
+      </div>
+    </div>
     <script>
-      const modalOpeners = document.querySelectorAll("#openModal");
+      const modalOpeners = document.querySelectorAll("#openModal"),
+        deleteBtn = document.querySelectorAll("#deleteBtn"),
+        updateForm = document.querySelectorAll("#updateForm"),
+        titleInput = document.getElementById("titleInput"),
+        titleBtn = document.getElementById("titleBtn"),
+        imageInput = document.getElementById("image-select"),
+        imageBtn = document.getElementById("imageBtn"),
+        fileReader = new FileReader(),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p"),
+        widgetOpen = (message) => {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        };
+
       modalOpeners.forEach((btn) => {
         btn.addEventListener("click", () => {
           let currentModal = btn.parentElement.parentElement.parentElement;
@@ -241,6 +304,104 @@
                 element.classList.remove("open");
               else element.classList.add("open");
           });
+        });
+      });
+
+      deleteBtn.forEach((btn, id) => {
+        btn.addEventListener("click", async () => {
+          let deleteRequest = await fetch(
+            `http://localhost:3000/article/articledelete/<%=BlogId%>`,
+            {
+              method: "DELETE",
+              body: JSON.stringify({
+                articleId: id,
+              }),
+            }
+          );
+
+          if (deleteRequest.status == 200) window.location.reload();
+        });
+      });
+
+      titleBtn.addEventListener("click", async () => {
+        const title = titleInput.value;
+
+        if (title.length <= 0) widgetOpen("Title should have a value");
+        else {
+          let updateBlogTitle = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  BlogTitle: title,
+                  ImageAddress: "",
+                  articleHeader: "",
+                  articleContent: "",
+                  articleId: null,
+                }),
+              }
+            ),
+            response = await updateBlogTitle.json();
+
+          widgetOpen(response.message);
+        }
+      });
+
+      imageBtn.addEventListener("click", async () => {
+        let imageAddress = "";
+
+        fileReader.onload = (event) => {
+          const base64String = event.target.result;
+
+          if (typeof base64String == "string") imageAddress = base64String;
+        };
+
+        fileReader.onerror = (event) =>
+          widgetOpen("Error occured on reading image, try again please");
+
+        fileReader.readAsDataURL(imageInput.files[0]);
+
+        fileReader.onloadend = async () => {
+          let updateImage = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  BlogTitle: "",
+                  ImageAddress: imageAddress,
+                  articleHeader: "",
+                  articleContent: "",
+                  articleId: null,
+                }),
+              }
+            ),
+            response = await updateImage.json();
+
+          widgetOpen(response.message);
+        };
+      });
+
+      updateForm.forEach((form, id) => {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          let articleHeader = event.target.children[2],
+            articleContent = event.target.children[6];
+
+          let updateRequest = await fetch(
+              `http://localhost:3000/article/articleupdate/<%=BlogId%>`,
+              {
+                method: "POST",
+                body: JSON.stringify({
+                  articleHeader: articleHeader.value,
+                  articleContent: articleContent.value,
+                  articleId: id,
+                }),
+              }
+            ),
+            response = await updateRequest.json();
+
+          widgetOpen(response.message);
         });
       });
     </script>

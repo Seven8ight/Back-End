@@ -220,7 +220,7 @@
       }
       #add {
         width: 70vw;
-        grid-row: 4/4;
+        grid-row: 5/5;
         grid-column: 1/4;
         text-align: center;
 
@@ -266,6 +266,7 @@
       const dateTag = document.querySelector("header p"),
         date = new Date(),
         themeBtn = document.querySelector("nav header button"),
+        addDiv = document.getElementById("add"),
         addBtn = document.querySelector("#add button"),
         cards = document.querySelectorAll("#card"),
         accountBtns = document.querySelectorAll("#accountOption"),
@@ -316,8 +317,21 @@
           }
         };
 
+      addDiv.style.gridRow = `${cards.length}/${cards.length}`;
       addBtn.addEventListener("click", () => {
-        window.location = "http://localhost:3000/article/new";
+        let user = window.localStorage.getItem("email");
+
+        if (!user) {
+          console.log("No user existent");
+        } else {
+          let role = window.localStorage.getItem("role");
+
+          if (role) {
+            if (role == "admin")
+              window.location = "http://localhost:3000/article/new";
+            else console.log("User does not have priviledges");
+          }
+        }
       });
       accountBtns.forEach((button) => {
         button.addEventListener(

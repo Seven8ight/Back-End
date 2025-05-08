@@ -25,12 +25,12 @@
         <p><%= article.Date %></p>
       </div>
       <div id="content">
-        <p><%= (article.Content[0].Content.slice(0,20)) + " ........." %></p>
+        <p><%=(article.Content[0].Content.slice(0,15)) + " ........." %></p>
       </div>
     </div>
   </div>
   <% } %>
   <div id="add">
-    <button><i class="fa-solid fa-plus"></i></button>
+    <button id="addBlog"><i class="fa-solid fa-plus"></i></button>
   </div>
 </div>

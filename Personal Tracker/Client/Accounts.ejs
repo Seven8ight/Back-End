@@ -147,6 +147,44 @@
       #form #Login input {
         margin-bottom: 50px !important;
       }
+      #widget {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 20vw;
+        height: 10vh;
+        border-radius: 10px;
+        background-color: cornsilk;
+        box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.5);
+        opacity: 0;
+        transform: translateX(300px);
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      }
+      #widget.open {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      #widget h1 {
+        font-size: 1.35rem;
+        text-align: center;
+        font-family: "Dancing Script", sans-serif;
+      }
+      #widget #liner {
+        width: 50%;
+        height: 1px;
+        background-color: grey;
+        border-radius: 10px;
+        position: absolute;
+        left: 25%;
+        top: 50%;
+      }
+      #widget p {
+        text-align: center;
+        font-family: "Roboto Flex", sans-serif;
+        font-size: 0.75rem;
+        position: relative;
+        top: 5px;
+      }
     </style>
   </head>
   <body>
@@ -165,7 +203,13 @@
         <form id="signupForm">
           <label>Name </label>
           <br />
-          <input type="text" name="Name" placeholder="John Doe" required />
+          <input
+            type="text"
+            name="Name"
+            placeholder="John Doe"
+            required
+            minlength="3"
+          />
           <br />
           <label>Email </label>
           <br />
@@ -201,10 +245,19 @@
             name="Password"
             placeholder="Your pass here"
             required
+            minlength="3"
+            maxlength="16"
           />
           <br />
           <button type="submit" id="loginBtn">Login</button>
         </form>
+      </div>
+    </div>
+    <div id="widget">
+      <h1>Notice</h1>
+      <div id="liner"></div>
+      <div id="message">
+        <p>Message here</p>
       </div>
     </div>
     <script>
@@ -214,7 +267,9 @@
         loginSelectionBtn = document.querySelector("#loginSelect"),
         signupDiv = document.querySelector("#Signup"),
         loginDiv = document.querySelector("#Login"),
-        highlighter = document.querySelector("#highlighter");
+        highlighter = document.querySelector("#highlighter"),
+        widget = document.getElementById("widget"),
+        widgetMsg = document.querySelector("#widget #message p");
 
       signupDiv.classList.add("visible");
       highlighter.classList.add("signup");
@@ -245,8 +300,6 @@
       const formSubmission = (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
-        console.log(event.target);
-        console.log(formData.get("Name"));
       };
 
       loginForm.addEventListener("submit", async (event) => {
@@ -254,28 +307,59 @@
 
         const formData = new FormData(event.target);
 
-        await fetch("http://localhost:3000/auth/login", {
-          method: "POST",
-          body: JSON.stringify({
-            email: formData.get("Email"),
-            password: formData.get("Password"),
+        let loginRequest = await fetch("http://localhost:3000/auth/login", {
+            method: "POST",
+            body: JSON.stringify({
+              email: formData.get("Email"),
+              password: formData.get("Password"),
+            }),
           }),
-        });
+          serverResponse = await loginRequest.json();
+
+        if (loginRequest.status == 200) {
+          window.localStorage.setItem("name", serverResponse.name);
+          window.localStorage.setItem("email", serverResponse.email);
+          window.localStorage.setItem("role", serverResponse.role);
+
+          window.location = "http://localhost:3000";
+        } else {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = serverResponse.message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        }
       });
       signupForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const formData = new FormData(event.target);
 
-        await fetch("http://localhost:3000/auth/signup", {
-          method: "POST",
-          body: JSON.stringify({
-            name: formData.get("Name"),
-            email: formData.get("Email"),
-            password: formData.get("Password"),
+        let signupRequest = await fetch("http://localhost:3000/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({
+              name: formData.get("Name"),
+              email: formData.get("Email"),
+              password: formData.get("Password"),
+            }),
           }),
-        });
-        window.location = "http://localhost:3000";
+          serverResponse = await signupRequest.json();
+
+        if (signupRequest.status == 201) {
+          window.localStorage.setItem("name", serverResponse.name);
+          window.localStorage.setItem("email", serverResponse.email);
+          window.localStorage.setItem("role", serverResponse.role);
+
+          window.location = "http://localhost:3000";
+        } else {
+          widget.classList.add("open");
+          widgetMsg.innerHTML = serverResponse.message;
+
+          setTimeout(() => {
+            widget.classList.remove("open");
+          }, 2000);
+        }
       });
     </script>
   </body>

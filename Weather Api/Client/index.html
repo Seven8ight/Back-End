@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+    <script
+      src="https://kit.fontawesome.com/9e14e23008.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <h1>Weather Data</h1>
+        <div id="search">
+          <input type="text" />
+          <button>Submit</button>
+        </div>
+      </div>
+      <div id="weather-card">
+        <div id="image">
+          <img src="/Images/Cloudy.png" />
+        </div>
+        <div id="country">
+          <h1>Nairobi</h1>
+          <p>Kenya</p>
+        </div>
+        <div id="weather">
+          <div id="temp">
+            <span><i class="fa-solid fa-temperature-three-quarters"></i></span>
+            <span>16<sup>˚</sup>C</span>
+          </div>
+          <div id="weather-info">
+            <div id="humidity">
+              <h3>Humidity</h3>
+              <p>
+                <i class="fa-solid fa-droplet" style="color: #00a3d7"></i
+                ><span>524 <span>g/kg</span></span>
+              </p>
+            </div>
+            <div id="precipitation">
+              <h3>Precipitation</h3>
+              <p>
+                <i class="fa-solid fa-water" style="color: #b51a00"></i
+                ><span
+                  >78 <span>L/m<sup>2</sup></span></span
+                >
+              </p>
+            </div>
+            <div id="pressure">
+              <h3>Pressure</h3>
+              <p>
+                <i class="fa-solid fa-arrows-to-dot" style="color: #b51a00"></i>
+                <span
+                  >100 <span>N/m<sup>2</sup></span></span
+                >
+              </p>
+            </div>
+            <div id="visibility">
+              <h3>Visibility</h3>
+              <p>
+                <i class="fa-solid fa-eye" style="color: #000000"></i
+                ><span>20 <span>Km</span></span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

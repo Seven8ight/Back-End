@@ -1,0 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+/* :root {
+  --hdr-gradient: linear-gradient(
+    to top right in oklab,
+    #fff 0%,
+    #383434 0% 20%,
+    #fff 0% 25%,
+    #383434 0% 76%,
+    #fff 0% 80%,
+    #383434 0% 100%
+  );
+  --sdr-gradient: linear-gradient(
+    to top right,
+    #fff 0%,
+    #000 0% 20%,
+    #fff 0% 25%,
+    #000 0% 76%,
+    #fff 0% 80%,
+    #000 0% 100%
+  );
+  background: var(--hdr-gradient);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+} */
+
+body {
+  background: linear-gradient(#cad0ff, #e3e3e3);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  color: black;
+}
+
+#container {
+  position: relative;
+  top: 14.5vh;
+  width: 30vw;
+  margin: auto;
+  text-align: center;
+}
+#country {
+  font-family: "Dancing Script", sans-serif;
+}
+#temp span {
+  font-family: "Roboto", sans-serif;
+}
+#temp span:first-of-type i {
+  font-size: 1.5em;
+}
+#container #header {
+  border-bottom: 1px solid rgba(200, 200, 200, 0.25);
+  padding-bottom: 30px;
+  box-shadow: 5px 5px 5px 0px rgba(200, 200, 200, 0.25);
+  border-radius: 10px;
+}
+#container #header h1 {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 400;
+}
+#container #header #search input {
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid black;
+}
+#container #header #search input:focus {
+  outline: none;
+}
+#container #header #search button {
+  border: none;
+  background: transparent;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+}
+#weather-card {
+  width: 30vw;
+  height: auto;
+  margin-top: 20px;
+
+  /* From https://css.glass */
+  background: rgba(134, 134, 134, 0.02);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+#weather-card #image img {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  top: 10px;
+}
+#weather-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  justify-content: space-around;
+}
+
+#weather-info div {
+  width: 14vw;
+  height: auto;
+
+  /* From https://css.glass */
+  background: rgba(134, 134, 134, 0.02);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  margin-bottom: 10px;
+}
+#weather-info div h3 {
+  text-align: left;
+  margin-left: 20px;
+  font-family: "Lobster Two", sans-serif;
+}
+#weather-info div p i {
+  position: relative;
+  right: 35px;
+  font-size: 2em;
+}
+#weather-info div p span {
+  position: relative;
+  bottom: 7.5px;
+  font-size: 1.25em;
+  font-family: "Inter", sans-serif;
+}
+#weather-info div p span span {
+  font-size: 0.7em !important;
+  position: relative;
+  top: 1.5px;
+}

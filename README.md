@@ -13,5 +13,7 @@
    1. To run simply type in
       `npm run begin` in terminal.
 7. Weather API - https://roadmap.sh/projects/weather-api-wrapper-service
+   1. Execution of server by:
+      `npm run watch` in terminal
 
 NB: Personal tracker contains blog json file that takes up space.

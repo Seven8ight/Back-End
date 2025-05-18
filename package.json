@@ -4,6 +4,7 @@
   "description": "- Back-end oriented projects",
   "main": "index.js",
   "scripts": {
+    "watch": "npx tsx --watch ./Server/Server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

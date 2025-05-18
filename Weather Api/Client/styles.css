@@ -1,29 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Cookie&family=Dancing+Script:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
-/* :root {
-  --hdr-gradient: linear-gradient(
-    to top right in oklab,
-    #fff 0%,
-    #383434 0% 20%,
-    #fff 0% 25%,
-    #383434 0% 76%,
-    #fff 0% 80%,
-    #383434 0% 100%
-  );
-  --sdr-gradient: linear-gradient(
-    to top right,
-    #fff 0%,
-    #000 0% 20%,
-    #fff 0% 25%,
-    #000 0% 76%,
-    #fff 0% 80%,
-    #000 0% 100%
-  );
-  background: var(--hdr-gradient);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
-} */
 
 body {
   background: linear-gradient(#cad0ff, #e3e3e3);
@@ -33,13 +8,17 @@ body {
   background-attachment: fixed;
   color: black;
 }
-
 #container {
   position: relative;
   top: 14.5vh;
   width: 30vw;
   margin: auto;
   text-align: center;
+  transition: filter 0.5s ease-out;
+}
+#container.loading {
+  filter: blur(2px);
+  pointer-events: none;
 }
 #country {
   font-family: "Dancing Script", sans-serif;
@@ -64,6 +43,11 @@ body {
   border: none;
   background: transparent;
   border-bottom: 1px solid black;
+  caret-color: black;
+  font-size: 17px;
+  width: 7.5vw;
+  font-family: "Dancing Script", sans-serif;
+  text-align: center;
 }
 #container #header #search input:focus {
   outline: none;
@@ -71,9 +55,10 @@ body {
 #container #header #search button {
   border: none;
   background: transparent;
-
+  font-size: 16px;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
+  cursor: pointer;
 }
 #weather-card {
   width: 30vw;
@@ -87,11 +72,15 @@ body {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
-#weather-card #image img {
+
+#weather-card #weather-card-info #image img {
   width: 100px;
   height: 100px;
   position: relative;
   top: 10px;
+}
+#weather-card-info {
+  opacity: 0;
 }
 #weather-info {
   display: flex;
@@ -104,7 +93,6 @@ body {
 #weather-info div {
   width: 14vw;
   height: auto;
-
   /* From https://css.glass */
   background: rgba(134, 134, 134, 0.02);
   border-radius: 16px;
@@ -121,7 +109,8 @@ body {
 }
 #weather-info div p i {
   position: relative;
-  right: 35px;
+  right: 20px;
+  bottom: 4px;
   font-size: 2em;
 }
 #weather-info div p span {
@@ -134,4 +123,27 @@ body {
   font-size: 0.7em !important;
   position: relative;
   top: 1.5px;
+}
+#no-info,
+#error {
+  position: absolute;
+  bottom: 50%;
+  text-align: center;
+  width: 100%;
+  font-family: "Dancing Script", sans-serif;
+}
+#no-info.disappear {
+  opacity: 0;
+}
+#weather-card-info.appear {
+  opacity: 1;
+}
+#error {
+  opacity: 0;
+}
+#no-info.searched {
+  opacity: 0;
+}
+#error.error {
+  opacity: 1;
 }

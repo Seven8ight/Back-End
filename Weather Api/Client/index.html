@@ -16,55 +16,69 @@
       <div id="header">
         <h1>Weather Data</h1>
         <div id="search">
-          <input type="text" />
-          <button>Submit</button>
+          <input required type="text" id="place" placeholder="State, City" />
+          <button id="searcher">Submit</button>
         </div>
       </div>
       <div id="weather-card">
-        <div id="image">
-          <img src="/Images/Cloudy.png" />
+        <div id="no-info">
+          <h2>Search up a city/state</h2>
         </div>
-        <div id="country">
-          <h1>Nairobi</h1>
-          <p>Kenya</p>
+        <div id="error">
+          <h3>Error occured</h3>
+          <p>Please try again</p>
         </div>
-        <div id="weather">
-          <div id="temp">
-            <span><i class="fa-solid fa-temperature-three-quarters"></i></span>
-            <span>16<sup>˚</sup>C</span>
+        <div id="weather-card-info">
+          <div id="image">
+            <img src="/Images/Cloudy.png" />
           </div>
-          <div id="weather-info">
-            <div id="humidity">
-              <h3>Humidity</h3>
-              <p>
-                <i class="fa-solid fa-droplet" style="color: #00a3d7"></i
-                ><span>524 <span>g/kg</span></span>
-              </p>
+          <div id="country">
+            <h1>-</h1>
+            <p>-</p>
+          </div>
+          <div id="weather">
+            <div id="temp">
+              <span
+                ><i class="fa-solid fa-temperature-three-quarters"></i
+              ></span>
+              <span>16<sup>˚</sup>C</span>
             </div>
-            <div id="precipitation">
-              <h3>Precipitation</h3>
-              <p>
-                <i class="fa-solid fa-water" style="color: #b51a00"></i
-                ><span
-                  >78 <span>L/m<sup>2</sup></span></span
-                >
-              </p>
-            </div>
-            <div id="pressure">
-              <h3>Pressure</h3>
-              <p>
-                <i class="fa-solid fa-arrows-to-dot" style="color: #b51a00"></i>
-                <span
-                  >100 <span>N/m<sup>2</sup></span></span
-                >
-              </p>
-            </div>
-            <div id="visibility">
-              <h3>Visibility</h3>
-              <p>
-                <i class="fa-solid fa-eye" style="color: #000000"></i
-                ><span>20 <span>Km</span></span>
-              </p>
+            <div id="weather-info">
+              <div id="humidity">
+                <h3>Humidity</h3>
+                <p>
+                  <i class="fa-solid fa-droplet" style="color: #00a3d7"></i
+                  ><span>524 <span>g/kg</span></span>
+                </p>
+              </div>
+              <div id="precipitation">
+                <h3>Precipitation</h3>
+                <p>
+                  <i class="fa-solid fa-water" style="color: #b51a00"></i
+                  ><span
+                    >78 <span>L/m<sup>2</sup></span></span
+                  >
+                </p>
+              </div>
+              <div id="pressure">
+                <h3>Pressure</h3>
+                <p>
+                  <i
+                    class="fa-solid fa-arrows-to-dot"
+                    style="color: #b51a00"
+                  ></i>
+                  <span
+                    >100 <span>N/m<sup>2</sup></span></span
+                  >
+                </p>
+              </div>
+              <div id="visibility">
+                <h3>Visibility</h3>
+                <p>
+                  <i class="fa-solid fa-eye" style="color: #000000"></i
+                  ><span>20 <span>Km</span></span>
+                </p>
+              </div>
             </div>
           </div>
         </div>

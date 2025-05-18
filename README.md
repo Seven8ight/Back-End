@@ -12,5 +12,6 @@
 6. Personal Tracker - https://roadmap.sh/projects/personal-blog
    1. To run simply type in
       `npm run begin` in terminal.
+7. Weather API - https://roadmap.sh/projects/weather-api-wrapper-service
 
 NB: Personal tracker contains blog json file that takes up space.

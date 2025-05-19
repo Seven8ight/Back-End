@@ -14,7 +14,7 @@ body {
 #container {
   position: relative;
   top: 14.5vh;
-  width: 30vw;
+  width: 40vw;
   margin: auto;
   text-align: center;
   transition: filter 0.5s ease-out;
@@ -64,7 +64,7 @@ body {
   cursor: pointer;
 }
 #weather-card {
-  width: 30vw;
+  width: 40vw;
   height: auto;
   margin-top: 20px;
 
@@ -77,8 +77,8 @@ body {
 }
 
 #weather-card #weather-card-info #image img {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   position: relative;
   top: 10px;
 }
@@ -94,7 +94,7 @@ body {
 }
 
 #weather-info div {
-  width: 14vw;
+  width: 18vw;
   height: auto;
   /* From https://css.glass */
   background: rgba(134, 134, 134, 0.02);
@@ -149,4 +149,16 @@ body {
 }
 #error.error {
   opacity: 1;
+}
+@media (max-width: 750px) {
+  #weather-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  #weather-info div p i {
+    font-size: 1em;
+    right: 0px;
+  }
 }

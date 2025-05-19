@@ -77,6 +77,11 @@ if (
               if (weatherResponse.conditions == "Partially cloudy")
                 weatherImg.src = "/Images/Sunny-cloudy.png";
               else if (
+                weatherResponse.conditions.toLowerCase().includes("rain") &&
+                weatherResponse.conditions.toLowerCase().includes("cloud")
+              )
+                weatherImg.src = "/Images/Rain-Cloudy.png";
+              else if (
                 weatherResponse.conditions.toLowerCase().includes("cloud")
               )
                 weatherImg.src = "/Images/Cloudy.png";

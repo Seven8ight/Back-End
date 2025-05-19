@@ -119,11 +119,28 @@ if (searchBtn instanceof HTMLButtonElement &&
                     if (!weatherRequest.ok) {
                         errorContainer.classList.add("error");
                         weatherCard.classList.remove("appear");
-                        errorTag.innerHTML = weatherResponse.message;
+                        if (weatherResponse.Error &&
+                            weatherResponse.Error.includes("getaddrinfo"))
+                            errorTag.innerHTML = "Network request failed, please try again";
+                        else if (weatherRequest.status == 404) {
+                            errorTag.innerHTML = "City / state not found";
+                            setTimeout(function () {
+                                errorContainer.classList.remove("error");
+                                noInfoContainer.classList.add("appear");
+                            }, 2000);
+                        }
+                        else if (weatherResponse.Error &&
+                            weatherResponse.Error.toLowerCase().includes("timedout"))
+                            errorTag.innerHTML =
+                                "Network request timed out, please try again";
+                        else
+                            errorTag.innerHTML =
+                                weatherResponse.Error || weatherResponse.message;
                     }
                     return [3 /*break*/, 6];
                 case 5:
                     error_1 = _a.sent();
+                    errorTag.innerHTML = error_1.message;
                     errorContainer.classList.add("error");
                     weatherCard.classList.remove("appear");
                     return [3 /*break*/, 6];
@@ -132,12 +149,17 @@ if (searchBtn instanceof HTMLButtonElement &&
                     weatherContainer.classList.remove("loading");
                     return [3 /*break*/, 8];
                 case 7:
-                    console.log("No value is presented");
+                    placeInput.placeholder = "Enter a value first";
+                    setTimeout(function () {
+                        placeInput.placeholder = "State/City";
+                    }, 2000);
                     _a.label = 8;
                 case 8: return [3 /*break*/, 10];
                 case 9:
                     error_2 = _a.sent();
-                    console.log(error_2);
+                    errorTag.innerHTML = error_2.message;
+                    errorContainer.classList.add("error");
+                    weatherCard.classList.remove("appear");
                     return [3 /*break*/, 10];
                 case 10: return [2 /*return*/];
             }

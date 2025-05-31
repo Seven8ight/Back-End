@@ -125,6 +125,13 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                       })
                     );
                   } else {
+                    const blogsCached = await redisClient.get("All blogs");
+
+                    if (blogsCached != null) {
+                      await redisClient.expire("All blogs", 1);
+                      await cacheDB.saveBlogs(await blogDB.getBlogs());
+                    }
+
                     response.writeHead(201);
                     response.end(
                       JSON.stringify({ message: "Blog created successfully" })
@@ -344,4 +351,11 @@ server.listen(process.env.PORT || 3000, async () => {
     process.stdout.write(
       "Cache server unavailable, Database and server are up and running\n"
     );
+});
+
+process.on("uncaughtException", (error) => {
+  console.log(error);
+});
+process.on("unhandledRejection", (error) => {
+  console.log(error);
 });

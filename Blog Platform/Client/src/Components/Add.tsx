@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion } from "motion/react";
-import { useTheme } from "../App";
+import { useTheme } from "./Hooks/useTheme";
 import { Moon, Sun } from "./Icons/Icons";
 
 const Add = (): React.ReactNode => {
@@ -68,18 +68,6 @@ const Add = (): React.ReactNode => {
   };
 
   formRef.current?.addEventListener("submit", submissionEvent);
-
-  useEffect(() => {
-    if (theme == "dark") {
-      document.body.style.backgroundColor = "rgb(39,36,36)";
-      document.documentElement.style.setProperty("--color-font", "white");
-      document.documentElement.style.setProperty("--divider-color", "white");
-    } else {
-      document.body.style.backgroundColor = "#f1f0f0";
-      document.documentElement.style.setProperty("--color-font", "black");
-      document.documentElement.style.setProperty("--divider-color", "black");
-    }
-  }, [theme]);
 
   return (
     <>

@@ -1,11 +1,11 @@
 import { useState, useEffect, useReducer } from "react";
 import { motion } from "motion/react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Sun, Moon } from "./Icons/Icons";
-import { useTheme, type theme } from "../App";
+import { useTheme, type theme } from "./Hooks/useTheme";
 import ProfileImg from "./../Assets/unnamed-2.png";
 
-type Blog = {
+export type Blog = {
   id: string;
   title: string;
   content: string;
@@ -88,6 +88,7 @@ const Home = (): React.ReactNode => {
     [filterBlogs, dispatch] = useReducer(reducer, []),
     [infoModal, setModal] = useState<boolean>(false),
     { theme, setTheme } = useTheme(),
+    navigation = useNavigate(),
     themeHandler = (theme: theme) => setTheme(theme);
 
   useEffect(() => {
@@ -116,21 +117,14 @@ const Home = (): React.ReactNode => {
     if (blogs.length > 0)
       for (let i = 0; i <= blogs.length - 1; i++) {
         let tags = blogs[i].tags;
-        setTags((currenttags) => [...currenttags, ...tags]);
+
+        setTags((currentTags) =>
+          [...currentTags, ...tags]
+            .map((tag) => tag.toLowerCase())
+            .filter((tag, index, array) => array.lastIndexOf(tag) == index)
+        );
       }
   }, [blogs]);
-
-  useEffect(() => {
-    if (theme == "dark") {
-      document.body.style.backgroundColor = "rgb(39,36,36)";
-      document.documentElement.style.setProperty("--color-font", "white");
-      document.documentElement.style.setProperty("--divider-color", "white");
-    } else {
-      document.body.style.backgroundColor = "#f1f0f0";
-      document.documentElement.style.setProperty("--color-font", "black");
-      document.documentElement.style.setProperty("--divider-color", "black");
-    }
-  }, [theme]);
 
   return (
     <motion.div id="home">
@@ -163,7 +157,7 @@ const Home = (): React.ReactNode => {
                           payload: event.currentTarget.innerHTML,
                         });
                         event.currentTarget.style.backgroundColor =
-                          "rgba(81, 197, 195, 0.75)";
+                          "rgba(200, 122, 122, 0.75)";
                       } else {
                         event.currentTarget.style.backgroundColor =
                           "transparent";
@@ -176,7 +170,7 @@ const Home = (): React.ReactNode => {
                     whileHover={{ scale: 1.05 }}
                     key={index}
                   >
-                    {tag}
+                    {tag[0].toUpperCase() + tag.slice(1)}
                   </motion.button>
                 );
               })}
@@ -205,7 +199,12 @@ const Home = (): React.ReactNode => {
         blogs.map((blog, index) => {
           if (index + 1 != blogs.length)
             return (
-              <div key={blog.id + index}>
+              <div
+                onClick={() => {
+                  navigation(`/blog/${blog.id}`);
+                }}
+                key={blog.id + index}
+              >
                 <motion.div
                   id="blog"
                   key={blog.id}
@@ -259,7 +258,12 @@ const Home = (): React.ReactNode => {
 
           if (filter) {
             return (
-              <div key={blog.id + index}>
+              <div
+                onClick={() => {
+                  navigation(`/blog/${blog.id}`);
+                }}
+                key={blog.id + index}
+              >
                 <motion.div
                   id="blog"
                   key={blog.id}

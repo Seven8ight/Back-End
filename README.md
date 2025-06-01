@@ -16,5 +16,6 @@
    1. Execution of server by:
       `npm run watch` in terminal
       NB: The apple png files and favicon.ico are actually empty they dont work, its a fix to the normal default behaviour of safari trying to use an image for the start section in the browser
+8. Blog Platform API - https://roadmap.sh/projects/blogging-platform-api
 
 NB: Personal tracker contains blog json file that takes up space.

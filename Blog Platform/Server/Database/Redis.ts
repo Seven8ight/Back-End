@@ -12,6 +12,7 @@ export class CacheDB {
 
   async saveBlog(blog: Blog, id: string) {
     return await redisClient.hSet(id, {
+      id: id,
       title: blog.title,
       content: blog.content,
       category: blog.category,

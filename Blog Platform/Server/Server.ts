@@ -189,6 +189,8 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                     return;
                   }
 
+                  await cacheDB.saveBlogs(await blogDB.getBlogs());
+
                   response.writeHead(200);
                   response.end(
                     JSON.stringify({
@@ -227,12 +229,13 @@ const jsonReader = async (data: any): Promise<Error | any> => {
               return;
             case "blog":
               const blogId = routeSegment[2],
-                getBlog = await redisClient.get(blogId);
+                getBlog = await redisClient.hGetAll(blogId);
 
-              if (getBlog == null) {
+              if (Object.keys(getBlog).length == 0) {
                 const blog = await blogDB.specificBlog(blogId);
 
-                redisClient.isReady && (await cacheDB.saveBlog(blog, blogId));
+                redisClient.isReady &&
+                  (await cacheDB.saveBlog(blog[0], blogId));
 
                 if (blog instanceof Error) {
                   response.writeHead(500);
@@ -244,16 +247,12 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   return;
                 } else {
                   response.writeHead(200);
-                  response.end(JSON.stringify(blog));
+                  response.end(JSON.stringify(blog[0]));
                   return;
                 }
               } else {
                 response.writeHead(200);
-                response.end(
-                  JSON.stringify({
-                    Blog: getBlog,
-                  })
-                );
+                response.end(JSON.stringify(getBlog));
                 return;
               }
             case "tags":

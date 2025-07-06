@@ -1,3 +1,4 @@
 /node_modules
 **/.env
 **/Server.js
+**/*.DS_STORE

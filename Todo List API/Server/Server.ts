@@ -297,7 +297,7 @@ const port = process.env.PORT,
               response.writeHead(404);
               response.end(
                 jsonResponse(
-                  "Route doesn't exist\n Existing routes are \n 1. register\n 2. login"
+                  "Route doesn't exist\n Existing routes are \n 1. register\n 2. login\n 3. Update\n 4. Delete"
                 )
               );
               break;
@@ -385,6 +385,7 @@ const port = process.env.PORT,
               });
 
               break;
+
             case "update":
               console.log("Called here also");
               let updateData: any = "";
@@ -420,6 +421,7 @@ const port = process.env.PORT,
                 }
               });
               break;
+
             case "delete":
               let deleteData: any = "";
 
@@ -436,23 +438,29 @@ const port = process.env.PORT,
                 });
 
                 if (typeof deletion == "string") {
-                  if (deletion == "Token does not exist") {
-                    response.writeHead(403);
-                    response.end(jsonResponse("User token is invalid"));
-                  } else if (deletion == "Token passed is invalid") {
-                    response.writeHead(403);
-                    response.end(jsonResponse("Parsed token is invalid"));
-                  } else if (deletion == "Id should be provided") {
-                    response.writeHead(403);
-                    response.end(jsonResponse("todo id should be provided"));
-                  } else if (deletion == "Delete successful") {
-                    response.writeHead(204);
-                    response.end();
-                  } else {
-                    response.writeHead(404);
-                    response.end(
-                      jsonResponse("The row does not exist in the database")
-                    );
+                  switch (deletion) {
+                    case "Token does not exist":
+                      response.writeHead(403);
+                      response.end(jsonResponse("User token is invalid"));
+                      break;
+                    case "Token passed is invalid":
+                      response.writeHead(403);
+                      response.end(jsonResponse("Parsed token is invalid"));
+                      break;
+                    case "Id should be provided":
+                      response.writeHead(403);
+                      response.end(jsonResponse("todo id should be provided"));
+                      break;
+                    case "Delete successful":
+                      response.writeHead(204);
+                      response.end();
+                      break;
+                    default:
+                      response.writeHead(404);
+                      response.end(
+                        jsonResponse("The row does not exist in the database")
+                      );
+                      break;
                   }
                 } else {
                   response.writeHead(500);
@@ -461,6 +469,7 @@ const port = process.env.PORT,
                 }
               });
               break;
+
             default:
               response.writeHead(404);
               return response.end(jsonResponse("Route does not exist"));

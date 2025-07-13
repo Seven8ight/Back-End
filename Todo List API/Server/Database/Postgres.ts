@@ -67,6 +67,41 @@ export class Database {
     }
   }
 
+  async getUser(token: string) {
+    if ((await this.tableExists("user")) == false)
+      try {
+        await this.Client.query(
+          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);"
+        );
+        return "User table non-existent";
+      } catch (error) {
+        return error;
+      }
+
+    let userId = verifyUser(token);
+
+    if (userId instanceof Error) {
+      return userId.message;
+    }
+
+    let user = userId as UserDetails;
+
+    try {
+      if (user.id) {
+        let fetchUser = await this.Client.query(
+          "SELECT * FROM users WHERE id::text=$1",
+          [user.id]
+        );
+
+        if (fetchUser.rowCount && fetchUser.rows.length > 0)
+          return fetchUser.rows;
+        else return "User is non-existent";
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
   async login(
     details: Omit<UserDetails, "name">
   ): Promise<UserDetails | string | SecurityCredentials> {

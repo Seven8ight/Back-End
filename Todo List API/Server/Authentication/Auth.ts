@@ -1,4 +1,4 @@
-import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { UserDetails } from "../Database/Postgres";
 
 export type SecurityCredentials = {
@@ -18,7 +18,7 @@ export const generateToken = (details: Partial<UserDetails>) => {
 
     return { accessToken, refreshToken };
   },
-  verifyUser = (token: string): string | boolean | JwtPayload => {
+  verifyUser = (token: string): string | JwtPayload | Error => {
     try {
       return jwt.verify(token, process.env.JWT_ACCESS_TOKEN as string);
     } catch (error) {

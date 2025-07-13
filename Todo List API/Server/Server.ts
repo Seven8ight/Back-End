@@ -44,6 +44,38 @@ const port = process.env.PORT,
       switch (parsedPaths[0]) {
         case "accounts":
           switch (parsedPaths[1]) {
+            case "profile":
+              const authId = request.headers["authorization"];
+
+              if (!authId) {
+                response.writeHead(404);
+                response.end(jsonResponse("Auth id is not present"));
+              } else {
+                let user = await DB.getUser(authId);
+
+                if (typeof user == "string") {
+                  if (user == "User table non-existent") {
+                    response.writeHead(500);
+                    response.end(
+                      jsonResponse(
+                        "Server error, please try again, table is non-existent on the server-side"
+                      )
+                    );
+                  } else if (user == "User is non-existent") {
+                    response.writeHead(404);
+                    response.end(jsonResponse("User is non-existent"));
+                  } else {
+                    response.writeHead(500);
+                    response.end(jsonResponse(user));
+                  }
+                } else {
+                  delete user[0].password;
+
+                  response.writeHead(200);
+                  response.end(jsonResponse(user[0]));
+                }
+              }
+              break;
             case "register":
               let userInfo: any = "";
 
@@ -128,7 +160,6 @@ const port = process.env.PORT,
                     let userLogin = await DB.login(userData);
 
                     switch (userLogin) {
-                      case "User table non-existent":
                       case "User does not exist":
                         response.writeHead(200);
                         response.end(jsonResponse("User does not exist"));
@@ -304,28 +335,11 @@ const port = process.env.PORT,
           }
           break;
         case "todos":
-          const userId = parsedPaths[2],
-            authId = request.headers["authorization"];
+          const authId = request.headers["authorization"];
 
-          if (!userId || !authId) {
+          if (!authId) {
             response.writeHead(403);
-            response.end(jsonResponse("User id and auth id should be present"));
-            return;
-          }
-
-          const user = verifyUser(authId);
-
-          if (typeof user == "boolean") {
-            response.writeHead(404);
-            response.end(jsonResponse("User token invalid"));
-            return;
-          } else if (typeof user == "string" && user.includes("jwt")) {
-            response.writeHead(403);
-            response.end(jsonResponse("Invalid jwt token parsed in" + user));
-            return;
-          } else if ((user as any).id != userId) {
-            response.writeHead(403);
-            response.end(jsonResponse("User is invalid"));
+            response.end(jsonResponse("Auth token should be present"));
             return;
           }
 
@@ -485,6 +499,7 @@ const port = process.env.PORT,
 
 server.listen(port || 3000, async () => {
   await postgres.connect();
+
   process.stdout.write("Server is running at port 3000");
 });
 

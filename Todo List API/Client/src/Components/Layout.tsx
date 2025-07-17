@@ -217,16 +217,13 @@ const Layout = (): React.ReactNode => {
         newList.removeAny(taskId);
         setItems(newList);
 
-        let deleteRequest = await fetch(
-          `http://localhost:3000/todos/delete/${taskId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-type": "application/json",
-              Authorization: `${accessToken}`,
-            },
-          }
-        );
+        await fetch(`http://localhost:3000/todos/delete/${taskId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `${accessToken}`,
+          },
+        });
 
         if (accessToken) {
           fetchTasks(accessToken);

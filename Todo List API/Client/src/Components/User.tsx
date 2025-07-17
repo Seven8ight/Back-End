@@ -95,7 +95,7 @@ const User = (): React.ReactNode => {
   }, []);
 
   useEffect(() => {
-    setTimeout(async () => {
+    let errorTimeout = setTimeout(async () => {
       if (error) setError(false);
       if (responseMsg.length > 0) setResponseMsg("");
 
@@ -106,6 +106,8 @@ const User = (): React.ReactNode => {
 
         fetchUser();
       })();
+
+      return () => clearTimeout(errorTimeout);
     }, 2000);
   }, [error, responseMsg]);
 

@@ -213,6 +213,14 @@
 #Auth #loginform input {
   margin-bottom: 60px !important;
 }
+#Auth #error {
+  width: 100%;
+}
+#Auth #error p {
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 300;
+  text-align: center;
+}
 
 #Update,
 #User {

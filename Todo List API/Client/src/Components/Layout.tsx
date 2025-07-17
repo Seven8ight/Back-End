@@ -108,6 +108,12 @@ const Layout = (): React.ReactNode => {
   }, [accessToken, refreshToken]);
 
   useEffect(() => {
+    let errorTimeout = setTimeout(() => setError(false), 2500);
+
+    return () => clearTimeout(errorTimeout);
+  }, [error]);
+
+  useEffect(() => {
     if (accessToken) localStorage.setItem("accessToken", accessToken);
   }, [accessToken]);
 

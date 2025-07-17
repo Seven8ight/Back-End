@@ -246,6 +246,16 @@
       margin-bottom: 60px !important;
     }
   }
+
+  & #error {
+    width: 100%;
+
+    & p {
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 300;
+      text-align: center;
+    }
+  }
 }
 
 #Update,

@@ -92,7 +92,7 @@ const Update = (): React.ReactNode => {
   }, []);
 
   useEffect(() => {
-    setTimeout(async () => {
+    let errorTimeout = setTimeout(async () => {
       if (error) setError(false);
       if (responseMsg.length > 0) setResponseMsg("");
 
@@ -102,6 +102,8 @@ const Update = (): React.ReactNode => {
         setDescription("");
       })();
     }, 2000);
+
+    return () => clearTimeout(errorTimeout);
   }, [error, responseMsg]);
 
   return (

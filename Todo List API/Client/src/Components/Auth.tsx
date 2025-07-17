@@ -182,6 +182,12 @@ const Login = ({
       setPassword("");
     }, [currentForm]);
 
+    useEffect(() => {
+      let errorTimeout = setTimeout(() => setError(false), 2500);
+
+      return () => clearTimeout(errorTimeout);
+    }, [error]);
+
     return (
       <div id="Auth">
         <div id="selection">

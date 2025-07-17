@@ -140,21 +140,27 @@ export class Database {
     newDetails: Partial<Omit<UserDetails, "id">>
   ): Promise<boolean | Error | string> {
     try {
+      delete (newDetails as unknown as any).id;
+
       let userChecker = await this.Client.query(
-        `SELECT * FROM users where id::text=${id}`
+        `SELECT * FROM users where id::text=$1`,
+        [id]
       );
 
       if (userChecker.rowCount && userChecker.rowCount <= 0)
         return "User does not exist";
 
       for (let [key, value] of Object.entries(newDetails)) {
-        await this.Client.query(
-          `UPDATE users WHERE id::text=${id} SET ${key}=${value}`
-        );
+        if (value.length > 0)
+          await this.Client.query(
+            `UPDATE users SET ${key}=$1 WHERE id::text=$2`,
+            [value, id]
+          );
       }
 
       return true;
     } catch (error) {
+      console.log(error);
       return error;
     }
   }
@@ -204,10 +210,31 @@ export class Database {
     return true;
   }
 
+  async getTodo(
+    token: string,
+    todoId: string
+  ): Promise<string | QueryResult | Error> {
+    try {
+      const user = verifyUser(token);
+
+      if (typeof user == "string")
+        return "User is invalid, token expired or not valid";
+
+      const todoFinder = this.Client.query(
+        "SELECT * FROM todos WHERE id::text=$1",
+        [todoId]
+      );
+
+      return todoFinder;
+    } catch (error) {
+      return error;
+    }
+  }
+
   async getTodos(token: string): Promise<string | QueryResult> {
     const user = verifyUser(token);
 
-    if (typeof user == "boolean") return "Token passed is invalid";
+    if (user instanceof Error) return "Token passed is invalid";
 
     try {
       if (!(await this.tableExists("todos"))) return "Table non existent";
@@ -271,6 +298,7 @@ export class Database {
 
       return "Delete successful";
     } catch (error) {
+      console.log(error);
       return error as Error;
     }
   }

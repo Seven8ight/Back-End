@@ -1,5 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config({ path: path.join(path.resolve(__dirname, "..", ".env")) });
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { UserDetails } from "../Database/Postgres";
+import path from "path";
 
 export type SecurityCredentials = {
   accessToken: string;
@@ -14,7 +18,13 @@ export const generateToken = (details: Partial<UserDetails>) => {
           expiresIn: "900s",
         }
       ),
-      refreshToken = jwt.sign(details, process.env.JWT_REFRESH_TOKEN as string);
+      refreshToken = jwt.sign(
+        details,
+        process.env.JWT_REFRESH_TOKEN as string,
+        {
+          expiresIn: "2592000s",
+        }
+      );
 
     return { accessToken, refreshToken };
   },
@@ -37,8 +47,7 @@ export const generateToken = (details: Partial<UserDetails>) => {
 
     const accessToken = jwt.sign(
       verification,
-      process.env.JWT_ACCESS_TOKEN as string,
-      { expiresIn: "900s" }
+      process.env.JWT_ACCESS_TOKEN as string
     );
 
     return {

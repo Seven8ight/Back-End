@@ -7,7 +7,7 @@ import * as http from "http";
 import pg from "pg";
 import url from "url";
 import { Database, UserDetails } from "./Database/Postgres";
-import { verifyUser } from "./Authentication/Auth";
+import { verifyUser, refreshToken } from "./Authentication/Auth";
 
 const port = process.env.PORT,
   postgres = new pg.Client({
@@ -18,6 +18,14 @@ const port = process.env.PORT,
   }),
   jsonResponse = (message: string | any) =>
     JSON.stringify({ message: message }),
+  jsonParsing = async (content: string) =>
+    new Promise((resolve, reject) => {
+      try {
+        resolve(JSON.parse(content));
+      } catch (error) {
+        reject(error);
+      }
+    }),
   server: http.Server = http.createServer(
     async (
       request: http.IncomingMessage,
@@ -33,13 +41,19 @@ const port = process.env.PORT,
       );
       response.setHeader(
         "Access-Control-Allow-Methods",
-        "GET,PUT,POST,DELETE,OPTIONS"
+        "GET,PUT,POST,PATCH,DELETE,OPTIONS"
       );
       response.setHeader(
         "Access-Control-Allow-Headers",
-        "content-type, authorization, accept"
+        "Content-type, authorization, accept"
       );
       response.setHeader("Content-type", "application/json");
+
+      if (request.method === "OPTIONS") {
+        response.writeHead(204);
+        response.end();
+        return;
+      }
 
       switch (parsedPaths[0]) {
         case "accounts":
@@ -83,7 +97,7 @@ const port = process.env.PORT,
                 request.on("data", (userBuffer: Buffer) => {
                   userInfo += userBuffer.toString();
                 });
-
+                console.log(userInfo);
                 request.on("end", async () => {
                   try {
                     let userData: UserDetails = JSON.parse(userInfo);
@@ -165,7 +179,7 @@ const port = process.env.PORT,
                         response.end(jsonResponse("User does not exist"));
                         break;
                       case "Incorrect password":
-                        response.writeHead(403);
+                        response.writeHead(403, "incorrrect password");
                         response.end(
                           jsonResponse(
                             "Incorrect password passed in for the account"
@@ -202,11 +216,10 @@ const port = process.env.PORT,
               break;
             case "update":
               if (request.method == "PUT") {
-                let userId = parsedPaths[1],
-                  authId = request.headers["authorization"],
+                let authId = request.headers["authorization"],
                   requestBody: any = "";
 
-                if (!userId || !authId) {
+                if (!authId) {
                   response.writeHead(404);
                   response.end(
                     jsonResponse(
@@ -223,12 +236,6 @@ const port = process.env.PORT,
                   response.end(jsonResponse("User token invalid"));
                   return;
                 } else {
-                  if ((user as any).id != userId) {
-                    response.writeHead(403);
-                    response.end(jsonResponse("User is invalid"));
-                    return;
-                  }
-
                   request.on("data", (data: Buffer) => {
                     requestBody += data.toString();
                   });
@@ -237,7 +244,7 @@ const port = process.env.PORT,
                     try {
                       const updateDetails = JSON.parse(requestBody),
                         updateProcess = await DB.updateUser(
-                          userId,
+                          (user as any).id,
                           updateDetails
                         );
 
@@ -324,6 +331,62 @@ const port = process.env.PORT,
                 response.end();
               }
               break;
+            case "renew":
+              if (request.method == "PATCH") {
+                let refreshData: any = "";
+
+                request.on("data", (data: Buffer) => {
+                  refreshData += data.toString();
+                });
+
+                request.on("end", async () => {
+                  let userRefreshToken = await jsonParsing(refreshData);
+
+                  if (!(userRefreshToken instanceof Error)) {
+                    try {
+                      let refreshProcess = refreshToken(
+                        (userRefreshToken as any).refreshToken
+                      );
+
+                      if (typeof refreshProcess == "string") {
+                        response.writeHead(403);
+                        response.end(jsonResponse("Refresh token is invalid"));
+                        return;
+                      }
+
+                      response.writeHead(200);
+                      response.end(jsonResponse(refreshProcess.accessToken));
+                    } catch (error) {
+                      if ((error as Error).message.includes("JSON")) {
+                        response.writeHead(500);
+                        response.end(
+                          jsonResponse("JSON parsed is in invalid format")
+                        );
+                        return;
+                      }
+
+                      response.writeHead(500);
+                      response.end(
+                        jsonResponse(
+                          "Server error, please try again" +
+                            (error as Error).message
+                        )
+                      );
+                    }
+                  } else {
+                    response.writeHead(409);
+                    response.end(
+                      jsonResponse("Json data passed in is invalid")
+                    );
+                  }
+                });
+              } else {
+                response.writeHead(405);
+                response.end(
+                  jsonResponse("Invalid header method, use PATCH instead")
+                );
+              }
+              break;
             default:
               response.writeHead(404);
               response.end(
@@ -348,6 +411,12 @@ const port = process.env.PORT,
               const todos = await DB.getTodos(authId);
 
               if (typeof todos == "string") {
+                if (todos == "Token passed is invalid") {
+                  response.writeHead(403);
+                  response.end(jsonResponse("Token passed is invalid"));
+                  return;
+                }
+
                 response.writeHead(500);
                 response.end(jsonResponse("Database error in reading data"));
                 return;
@@ -356,7 +425,60 @@ const port = process.env.PORT,
               response.writeHead(200);
               response.end(JSON.stringify(todos.rows));
               break;
+            case "get":
+              if (request.method == "POST") {
+                let requestBody: any = "";
 
+                request.on("data", (data: Buffer) => {
+                  requestBody += data.toString();
+                });
+
+                request.on("end", async () => {
+                  try {
+                    let todoData = await jsonParsing(requestBody);
+
+                    const todoFinder = await DB.getTodo(
+                      authId,
+                      (todoData as any).id
+                    );
+
+                    if (todoFinder instanceof Error) {
+                      response.writeHead(500);
+                      response.end(
+                        jsonResponse("Server error, please try again")
+                      );
+                      return;
+                    } else if (typeof todoFinder == "string") {
+                      response.writeHead(403);
+                      response.end(
+                        jsonResponse(
+                          "User is invalid, token expired, try again"
+                        )
+                      );
+                      return;
+                    } else if (
+                      todoFinder.rowCount &&
+                      todoFinder.rowCount == 0
+                    ) {
+                      response.writeHead(404);
+                      response.end(jsonResponse("Todo item not found"));
+                    } else {
+                      response.writeHead(200);
+                      response.end(jsonResponse(todoFinder.rows[0]));
+                    }
+                  } catch (error) {
+                    console.log(error);
+                    response.writeHead(500);
+                    response.end(
+                      jsonResponse("Server error occured, please try again")
+                    );
+                  }
+                });
+              } else {
+                response.writeHead(405);
+                response.end(jsonResponse("POST method instead"));
+              }
+              break;
             case "add":
               let todoData: any = "";
 
@@ -399,56 +521,55 @@ const port = process.env.PORT,
               });
 
               break;
-
             case "update":
-              console.log("Called here also");
-              let updateData: any = "";
+              if (request.method == "PUT") {
+                console.log("Called here also");
+                let updateData: any = "";
 
-              request.on("data", (data: Buffer) => {
-                updateData += data.toString();
-              });
+                request.on("data", (data: Buffer) => {
+                  updateData += data.toString();
+                });
 
-              request.on("end", async () => {
-                updateData = JSON.parse(updateData);
+                request.on("end", async () => {
+                  updateData = JSON.parse(updateData);
 
-                const updation = await DB.updateTodo(authId, updateData);
+                  const updation = await DB.updateTodo(authId, updateData);
 
-                if (typeof updation == "string") {
-                  if (updation == "Token does not exist") {
-                    response.writeHead(403);
-                    response.end(jsonResponse("User token is invalid"));
-                  } else if (updation == "Id should be provided") {
-                    response.writeHead(403);
-                    response.end(jsonResponse("todo id should be provided"));
+                  if (typeof updation == "string") {
+                    if (updation == "Token does not exist") {
+                      response.writeHead(403);
+                      response.end(jsonResponse("User token is invalid"));
+                    } else if (updation == "Id should be provided") {
+                      response.writeHead(404);
+                      response.end(jsonResponse("todo id should be provided"));
+                    } else {
+                      response.writeHead(409);
+                      response.end(
+                        jsonResponse(
+                          "Ensure to pass in all details, userid, title and description"
+                        )
+                      );
+                    }
                   } else {
-                    response.writeHead(409);
-                    response.end(
-                      jsonResponse(
-                        "Ensure to pass in all details, userid, title and description"
-                      )
-                    );
+                    response.writeHead(201);
+                    response.end(jsonResponse("Todo item updated"));
+                    return;
                   }
-                } else {
-                  response.writeHead(201);
-                  response.end(jsonResponse("Todo item updated"));
-                  return;
-                }
-              });
+                });
+              } else {
+                response.writeHead(405);
+                response.end(
+                  jsonResponse("Ensure to pass in a PUT method instead")
+                );
+              }
               break;
-
             case "delete":
-              let deleteData: any = "";
-
-              request.on("data", (data: Buffer) => {
-                deleteData += data.toString();
-              });
-
-              request.on("end", async () => {
-                deleteData = JSON.parse(deleteData);
+              if (request.method == "DELETE") {
+                let deleteTId: string = parsedPaths[2];
 
                 const deletion = await DB.deleteTodo({
                   token: authId,
-                  todoId: deleteData.todoId,
+                  todoId: deleteTId,
                 });
 
                 if (typeof deletion == "string") {
@@ -466,8 +587,11 @@ const port = process.env.PORT,
                       response.end(jsonResponse("todo id should be provided"));
                       break;
                     case "Delete successful":
+                      console.log("Delete successful");
                       response.writeHead(204);
-                      response.end();
+                      response.end(
+                        jsonResponse("Todo item deleted successfully")
+                      );
                       break;
                     default:
                       response.writeHead(404);
@@ -481,9 +605,11 @@ const port = process.env.PORT,
                   response.end(jsonResponse(deletion.message));
                   return;
                 }
-              });
+              } else {
+                response.writeHead(405);
+                response.end(jsonResponse("Use DELETE method instead"));
+              }
               break;
-
             default:
               response.writeHead(404);
               return response.end(jsonResponse("Route does not exist"));

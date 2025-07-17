@@ -1,0 +1,378 @@
+@import url("https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Mea+Culpa&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap");
+
+@mixin button() {
+  background: transparent;
+  border: none;
+  height: 50%;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+@mixin glassmorphism($radius) {
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: $radius;
+  box-shadow: 0 0px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+* {
+  & body {
+    background-color: rgba(225, 225, 225, 0.5);
+  }
+}
+
+#layout {
+  width: 45%;
+  margin: auto;
+  position: relative;
+  top: 15vh;
+
+  & #header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    & h1 {
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 300;
+    }
+
+    & #settings {
+      align-self: center;
+
+      & button {
+        @include button();
+      }
+    }
+  }
+
+  & #addtask {
+    margin: auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+
+    & #inputs {
+      display: flex;
+
+      & input {
+        border: none;
+        background: transparent;
+        border-bottom: 1px solid black;
+        width: 250px;
+        margin-right: 22px;
+        caret-color: black;
+        padding: 5px;
+        font-family: "Roboto Condensed", sans-serif;
+        font-size: 13px;
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+
+    & button {
+      @include button();
+      background-color: black;
+      color: white;
+      width: 35px;
+      border-radius: 7.5px !important;
+    }
+  }
+
+  & #tasks {
+    & #todo {
+      border-bottom: 1px solid black;
+      margin: 20px 0px 20px 0px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: box-shadow 0.5s ease-in-out, transform 0.5s ease-in-out;
+
+      &:hover {
+        box-shadow: 0px 0px 5px 0px rgba(150, 150, 150, 0.5);
+        transform: translateY(-2.5px);
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      & #text {
+        & h2 {
+          font-family: "Roboto Condensed", sans-serif;
+          font-weight: 300;
+        }
+        & p {
+          font-family: "Lobster Two", sans-serif;
+        }
+      }
+
+      & #status {
+        display: flex;
+
+        width: 125px;
+        justify-content: space-around;
+        align-items: center;
+
+        & button {
+          @include button();
+          font-size: 20px;
+
+          &:last-of-type() {
+            & i:hover {
+              color: black;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+#Auth {
+  margin: auto;
+  width: 60%;
+  height: 50vh;
+  position: relative;
+  top: 25vh;
+
+  & #selection {
+    @include glassmorphism(10px);
+    position: absolute;
+    left: 120px;
+    height: 105%;
+    width: 50px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    & button {
+      position: relative;
+      background: transparent;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+
+      font-family: "Roboto Condensed", sans-serif;
+      font-size: medium;
+      padding: 5px;
+
+      &:last-of-type {
+        width: 75px;
+        position: relative;
+        right: 12px;
+      }
+    }
+  }
+
+  & #loginform,
+  & #signupform {
+    @include glassmorphism(20px);
+    height: 100%;
+    width: 50%;
+    padding: 10px;
+    margin: auto;
+    display: block;
+
+    & h2 {
+      position: relative;
+      left: 30px;
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 400;
+    }
+
+    & p {
+      text-align: center;
+      font-family: "Lobster Two", sans-serif;
+    }
+
+    & form {
+      position: relative;
+      top: 20px;
+      padding: 5px;
+
+      & label {
+        position: relative;
+        left: 75px;
+        font-family: "Roboto Condensed", sans-serif;
+        font-weight: 300;
+      }
+      & input {
+        border: none;
+        background: transparent;
+        border-bottom: 1px solid black;
+        margin-bottom: 30px;
+        margin-top: 12.5px;
+        width: 215px;
+        position: relative;
+        left: 100px;
+        caret-color: black;
+        text-align: center;
+        font-family: "Roboto Condensed", sans-serif;
+
+        &:focus {
+          outline: none;
+        }
+      }
+      & button {
+        display: block;
+        margin: auto;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-family: "Roboto Condensed", sans-serif;
+        font-size: medium;
+      }
+    }
+
+    & #liner {
+      position: absolute;
+      left: 30%;
+      top: 27.5%;
+      width: 40%;
+      height: 1px;
+      background-color: rgba(200, 200, 200, 0.5);
+    }
+  }
+
+  & #loginform {
+    & input {
+      margin-bottom: 60px !important;
+    }
+  }
+}
+
+#Update,
+#User {
+  @include glassmorphism(20px);
+  width: 32.5%;
+  margin: auto;
+  padding: 5px;
+  position: relative;
+  top: 22.5vh;
+  height: 400px;
+
+  & #navigate {
+    display: flex;
+
+    & button {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      position: relative;
+      left: 10px;
+    }
+
+    & h1 {
+      position: relative;
+      left: 30%;
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+  }
+
+  & #form {
+    margin: auto;
+    padding: 5px;
+    width: 75%;
+    position: relative;
+    top: 30px;
+
+    & label {
+      font-family: "Roboto Condensed", sans-serif;
+      font-weight: 300;
+    }
+
+    & input {
+      border: none;
+      background: transparent;
+      border-bottom: 1px solid black;
+      margin: 20px 0px 50px 20px;
+      text-align: center;
+      font-family: "Lobster Two", sans-serif;
+      width: 90%;
+      caret-color: black;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    & button {
+      display: block;
+      margin: auto;
+      padding: 10px;
+      width: 60%;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid black;
+      background: transparent;
+      font-family: "Roboto Condensed", sans-serif;
+      transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+      position: relative;
+      top: 5px;
+
+      &:hover {
+        background-color: black;
+        color: white;
+      }
+    }
+  }
+
+  & #responses {
+    & #error,
+    & #success {
+      text-align: center;
+      position: relative;
+      top: 80px;
+
+      & p {
+        font-family: "Roboto Condensed", sans-serif;
+        font-weight: 300;
+        text-decoration: underline;
+      }
+    }
+
+    & #success {
+      & p {
+        color: green;
+      }
+    }
+  }
+
+  & #logout {
+    position: relative;
+    top: 100px;
+
+    & button {
+      display: block;
+      margin: auto;
+      padding: 10px;
+      width: 60%;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid black;
+      background: transparent;
+      font-family: "Roboto Condensed", sans-serif;
+      transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+
+      &:hover {
+        border-color: red;
+        background: rgba(255, 0, 0, 1);
+        color: white;
+      }
+    }
+  }
+}
+
+#User {
+  height: 515px;
+}

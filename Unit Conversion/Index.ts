@@ -29,7 +29,7 @@ const mimeTypes: Record<string, string> = {
   ".css": "text/css",
   ".js": "application/javascript",
 };
-console.log("");
+
 const port = process.env.PORT,
   Server = http.createServer(
     async (

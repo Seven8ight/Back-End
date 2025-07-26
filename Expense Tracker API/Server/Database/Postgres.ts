@@ -12,7 +12,7 @@ export type expense = {
   title: string;
   description: string;
   amount: number;
-  createdDate: Date;
+  createdAt: Date;
   lastUpdated: Date;
 };
 
@@ -53,12 +53,18 @@ export class PostGresDB {
       const userId = crypto.randomUUID();
 
       if (await this.tableExists("users")) {
-        await this.client.query(
-          "INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",
-          [userId, userDetails.name, userDetails.email, userDetails.password]
-        );
+        try {
+          await this.client.query(
+            "INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",
+            [userId, userDetails.name, userDetails.email, userDetails.password]
+          );
 
-        return generateToken({ id: userId, userDetails });
+          return generateToken({ id: userId, userDetails });
+        } catch (error) {
+          if ((error as Error).message.includes("duplicate key"))
+            return new Error("Email already exists");
+          return error;
+        }
       } else {
         return new Promise(async (resolve, reject) => {
           try {
@@ -94,7 +100,14 @@ export class PostGresDB {
           "SELECT * FROM users WHERE id::text=$1",
           [userId]
         );
-        return getUserQuery.rows[0];
+        if (getUserQuery.rowCount && getUserQuery.rowCount == 0)
+          return "User does not exist";
+
+        const userObject: Record<string, string> = getUserQuery.rows[0];
+
+        delete userObject.password;
+
+        return userObject as userDetails;
       } else {
         await this.client.query(
           "CREATE TABLE users(id UUID, name TEXT, email VARCHAR(100), password VARCHAR(100));"
@@ -109,7 +122,7 @@ export class PostGresDB {
 
   async updateUser(
     userId: string,
-    newDetails: userDetails
+    newDetails: Partial<userDetails>
   ): Promise<string | Error> {
     try {
       if (await this.tableExists("users")) {
@@ -146,6 +159,8 @@ export class PostGresDB {
   async deleteUser(userId: string): Promise<string | Error> {
     try {
       if (await this.tableExists("users")) {
+        await this.clearExpenses(userId);
+
         const userQuery = await this.client.query(
           "SELECT * FROM users WHERE id::text=$1",
           [userId]
@@ -182,7 +197,7 @@ export class PostGresDB {
         "title",
         "description",
         "amount",
-        "createdDate",
+        "createdAt",
         "lastUpdated",
       ],
       expenseParamKeys = Object.keys(expense),
@@ -200,10 +215,10 @@ export class PostGresDB {
         const expenseId = crypto.randomUUID();
 
         await this.client.query(
-          `INSERT INTO expenses(id, userId, ${Object.keys(expense).join(
+          `INSERT INTO expenses(id, userid, ${[...Object.keys(expense)].join(
             ", "
-          )}) VALUES($1,$2,$3,$4,$5,$5,$6,$7,$8)`,
-          [expenseId, userId, Object.values(expense).join(",")]
+          )}) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
+          [expenseId, userId, ...Object.values(expense)]
         );
 
         return "Expense created";
@@ -289,6 +304,21 @@ export class PostGresDB {
           return "User does not exist";
         else return "Expense does not exist";
       }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async clearExpenses(userId: string): Promise<string | Error> {
+    try {
+      let deletionOperation = await this.client.query(
+        "DELETE FROM expenses WHERE userid=$1",
+        [userId]
+      );
+
+      if (deletionOperation.rowCount && deletionOperation.rowCount > 0)
+        return "Deletion successful";
+      return "Already deleted";
     } catch (error) {
       return error;
     }

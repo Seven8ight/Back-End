@@ -96,7 +96,10 @@ export const pgClient = new pg.Client({
                     const userObject = verifyAccessToken(authId),
                       userRetrieval = await DB.getUser(parsedUserId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      typeof userObject == "string"
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse("Auth id is invalid try again")
@@ -149,7 +152,10 @@ export const pgClient = new pg.Client({
                   } else {
                     const userObject = verifyAccessToken(authId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      userObject instanceof String
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(
@@ -230,7 +236,10 @@ export const pgClient = new pg.Client({
                   } else {
                     const userObject = verifyAccessToken(authId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      typeof userObject == "string"
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(
@@ -292,7 +301,10 @@ export const pgClient = new pg.Client({
                   if (authId) {
                     const userObject = verifyAccessToken(authId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      typeof userObject == "string"
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(
@@ -348,7 +360,10 @@ export const pgClient = new pg.Client({
                   if (authId) {
                     const userObject = verifyAccessToken(authId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      typeof userObject == "string"
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(
@@ -417,7 +432,10 @@ export const pgClient = new pg.Client({
 
                   const userObject = verifyAccessToken(authId);
 
-                  if (userObject instanceof Error) {
+                  if (
+                    userObject instanceof Error ||
+                    typeof userObject == "string"
+                  ) {
                     response.writeHead(403);
                     response.end(
                       jsonResponse(
@@ -490,7 +508,10 @@ export const pgClient = new pg.Client({
 
                   const userObject = verifyAccessToken(authId);
 
-                  if (userObject instanceof Error) {
+                  if (
+                    userObject instanceof Error ||
+                    typeof userObject == "string"
+                  ) {
                     response.writeHead(403);
                     response.end(
                       jsonResponse(
@@ -565,7 +586,10 @@ export const pgClient = new pg.Client({
                   } else {
                     const userObject = verifyAccessToken(authId);
 
-                    if (userObject instanceof Error) {
+                    if (
+                      userObject instanceof Error ||
+                      typeof userObject == "string"
+                    ) {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(

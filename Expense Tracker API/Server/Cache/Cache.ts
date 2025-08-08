@@ -59,7 +59,7 @@ export class CacheDB {
           category: expense.category,
           description: expense.description,
           amount: expense.amount,
-          createdDate: expense.createdDate.toUTCString(),
+          createdDate: expense.createdAt.toUTCString(),
           lastUpdated: expense.lastUpdated.toUTCString(),
         });
 

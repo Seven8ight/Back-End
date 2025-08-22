@@ -1,5 +1,5 @@
 import { QueryResult, type Client } from "pg";
-import { generateToken, tokens } from "../Authentication/Auth";
+import { generateToken, tokens, verifyAccessToken} from "../Authentication/Auth";
 import crypto from "crypto";
 
 export type userDetails = {
@@ -13,359 +13,436 @@ export type expense = {
   description: string;
   amount: number;
   createdAt: Date;
-  lastUpdated: Date;
+  updatedAt: Date;
 };
 
-export class PostGresDB {
-  private client: Client;
+interface User{
+  createUser:(userDetails:userDetails) => Promise<string | tokens>
+  updateUser:(userDetails:Partial<userDetails>) => Promise<string>
+  deleteUser:() => Promise<string>
+  getUser:() => Promise<userDetails | string>
+  loginUser:(userDetails:Omit<userDetails,"name">) => Promise<string | tokens>
+}
+interface Expense{
+  createExpense:(expense:expense) => Promise<string>,
+  getExpense:(expenseId:string) => Promise<expense | string>
+  getExpenses:() => Promise<expense[] | string>
+  updateExpense:(expenseId:string,expenseDetails:Partial<expense>) => Promise<string>,
+  deleteExpense:(expenseId:string) => Promise<string | null>,
+  deleteExpenses:() => Promise<string | null>
+}
 
-  constructor(client: Client) {
-    this.client = client;
+export class PostGresDb{
+  protected client:Client;
+
+  constructor(client:Client){
+    this.client = client
   }
 
-  async tableExists(table: "users" | "expenses"): Promise<Error | boolean> {
+  async tableExists(tableName:"users" | "expenses"):Promise<true | null>{
     try {
       await this.client.query(
-        `SELECT * FROM ${table == "users" ? "users" : "expenses"}`
+        `SELECT * FROM ${tableName == "users" ? "users" : "expenses"}`
       );
 
       return true;
     } catch (error) {
-      return error;
+      return null;
     }
   }
+}
+export class UserDB extends PostGresDb implements User{
+  userToken?:string
 
-  //User
-  async createUser(userDetails: userDetails): Promise<string | tokens | Error> {
-    const nullFinder = Object.entries(userDetails).find(
-        (pair) => pair[1].length <= 0
-      ),
-      presentKeys = Object.keys(userDetails),
-      fieldsPresent =
-        presentKeys.length == 3 &&
-        ["name", "email", "password"].every((key) => presentKeys.includes(key));
+  constructor(clientDB:Client,userToken?:string){
+    super(clientDB)
+    this.userToken = userToken;
+  }
 
-    if (nullFinder) return `${nullFinder[0]} has no value provided`;
-    if (!fieldsPresent)
-      return `Incomplete fields, please provide all fields i.e. name, email and password.`;
+  protected authenticateUser():boolean | Object{
+    if(this.userToken){
+      const tokenValidator = verifyAccessToken(this.userToken)
+      
+      if(tokenValidator instanceof Error || typeof tokenValidator == 'string')
+        return false
+      return tokenValidator
+    }
+    else return false
+  }
 
-    try {
-      const userId = crypto.randomUUID();
-
-      if (await this.tableExists("users")) {
-        try {
-          await this.client.query(
-            "INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",
-            [userId, userDetails.name, userDetails.email, userDetails.password]
-          );
-
-          return generateToken({ id: userId, userDetails });
-        } catch (error) {
-          if ((error as Error).message.includes("duplicate key"))
-            return new Error("Email already exists");
-          return error;
+  async createUser(userDetails:userDetails): Promise<string | tokens>{
+    const userKeys = ["name","email","password"],
+      checkForKeys = userKeys.every(key => Object.keys(userDetails).includes(key));
+    
+    if(!checkForKeys)
+      return "Ensure all keys are present in the json body"
+    else{
+      for(let [key,value] of Object.entries(userDetails)){
+        if(key == 'email'){
+          if(value.length < 0)
+            return "Email length invalid"
+          else if(/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/.test(value) == false)
+            return "Email is invalid";
         }
-      } else {
-        return new Promise(async (resolve, reject) => {
-          try {
-            await this.client.query(
-              "CREATE TABLE users(id UUID, name TEXT, email VARCHAR(100), password VARCHAR(100));"
-            );
+        else if(key == 'password'){
+          if(value.length <= 3 || value.length > 16)
+            return "Password length is invalid. Varying 3-16"
+        }
+        else{
+          if(value.length <= 0)
+            return "Name is invalid";
+        }
+      }
 
-            await this.client.query(
-              "INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",
-              [
-                userId,
-                userDetails.name,
-                userDetails.email,
-                userDetails.password,
-              ]
-            );
+      try{
+        const userId = crypto.randomUUID(),
+          tableExists = await this.tableExists("users"),
+          userObject = {...userDetails,id:userId},
+          userToken = generateToken(userObject)
 
-            resolve(generateToken({ id: userId, userDetails }));
-          } catch (error) {
-            reject(error);
+        if(userToken instanceof Error == false){
+          if(tableExists)
+            await this.client.query("INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",[
+              userId,...Object.values(userDetails)
+            ])
+          else{
+            await this.client.query("CREATE TABLE users(id UUID,name TEXT,email TEXT UNIQUE,password TEXT)")
+            await this.client.query("INSERT INTO users(id,name,email,password) VALUES($1,$2,$3,$4)",[
+              userId,...Object.values(userDetails)
+            ])
           }
-        });
-      }
-    } catch (error) {
-      return error;
-    }
-  }
 
-  async getUser(userId: string): Promise<userDetails | string | Error> {
-    try {
-      if (await this.tableExists("users")) {
-        const getUserQuery: QueryResult = await this.client.query(
-          "SELECT * FROM users WHERE id::text=$1",
-          [userId]
-        );
-        if (getUserQuery.rowCount && getUserQuery.rowCount == 0)
-          return "User does not exist";
-
-        const userObject: Record<string, string> = getUserQuery.rows[0];
-
-        delete userObject.password;
-
-        return userObject as userDetails;
-      } else {
-        await this.client.query(
-          "CREATE TABLE users(id UUID, name TEXT, email VARCHAR(100), password VARCHAR(100));"
-        );
-
-        return "User table does not exist";
-      }
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async updateUser(
-    userId: string,
-    newDetails: Partial<userDetails>
-  ): Promise<string | Error> {
-    try {
-      if (await this.tableExists("users")) {
-        const userQuery = await this.client.query(
-          "SELECT * FROM users WHERE id::text=$1",
-          [userId]
-        );
-
-        if (!userQuery) return "User does not exist";
-
-        for (let [key, value] of Object.entries(newDetails)) {
-          if (value.length == 0) return `${key} has an empty value`;
+          return{
+            accessToken:userToken.accessToken,
+            refreshToken:userToken.refreshToken
+          }
         }
+        else
+          return "User creation failed"
+      }
+      catch(error){
+        return (error as Error).message
+      }
+    }
+  }
 
-        for (let [key, value] of Object.entries(newDetails)) {
-          await this.client.query(
-            `UPDATE users SET ${key}=$1 WHERE id::text=$2`,
-            [value, userId]
-          );
+  async updateUser(userDetails:Partial<userDetails>):Promise<string>{
+    const tableExists = await this.tableExists("users")
+
+    if(!tableExists)
+      return "User table doesn't exist"
+
+    const user = this.authenticateUser()
+
+    if(user instanceof Object){
+      try{
+        for(let [key,value] of Object.entries(userDetails)){
+          if(key == 'email'){
+            if(/^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/.test(value) == false)
+              return "Email format invalid."  
+          }
+          else if(key == 'password'){
+            if(value.length <= 3 || value.length > 16)
+              return `Password length is invalid. Ranging 3-16 characters`
+          }
+          else if(key == 'name'){
+            if(value.length <= 0)
+              return `${key} has an empty value`
+          }
+          else continue;
+
+          await this.client.query(`UPDATE users SET ${key}=$1 WHERE id::text=$2`,[value,(user as any).id])
         }
-
-        return "Update successful";
-      } else {
-        await this.client.query(
-          "CREATE TABLE users(id UUID, name TEXT, email VARCHAR(100), password VARCHAR(100));"
-        );
-        return "User table doesn't exist";
       }
-    } catch (error) {
-      return error;
-    }
+      catch(error){
+        return (error as Error).message
+      }
+
+      return "Update successful"
+    } else return "Authentication failed"
   }
 
-  async deleteUser(userId: string): Promise<string | Error> {
-    try {
-      if (await this.tableExists("users")) {
-        await this.clearExpenses(userId);
+  async deleteUser():Promise<string>{
+    if(this.userToken){
+      const user = this.authenticateUser()
 
-        const userQuery = await this.client.query(
-          "SELECT * FROM users WHERE id::text=$1",
-          [userId]
-        );
+      if(user instanceof Object){
+        try{
+          const expenseDB = new ExpenseDB(this.client,this.userToken),
+            expenseDeletion = await expenseDB.deleteExpenses()
+          
+          if(expenseDeletion != "Expenses deleted")
+            return `Expense deletion failed, user not deleted. Reason: ${expenseDeletion}`
+          else{
+            await this.client.query("DELETE FROM users WHERE id::text=$1",[(user as any).id])
 
-        if (!userQuery) return "User does not exist";
-
-        const deleteQuery = await this.client.query(
-          `DELETE FROM users WHERE id::text=$1`,
-          [userId]
-        );
-
-        if (deleteQuery.rowCount && deleteQuery.rowCount > 1)
-          return "Deletion successful";
-        else return "User already deleted";
-      } else {
-        await this.client.query(
-          "CREATE TABLE users(id UUID, name TEXT, email VARCHAR(100), password VARCHAR(100));"
-        );
-        return "User table doesn't exist";
+            return "User deleted successfully"
+          }
+        }
+        catch(error){
+          return (error as Error).message
+        }
       }
-    } catch (error) {
-      return error;
-    }
+      else return "Authentication failed"
+    } else return "User id absent"
   }
 
-  //Expenses
-  async createExpense(
-    userId: string,
-    expense: expense
-  ): Promise<Error | string> {
-    const expenseKeys = [
-        "category",
-        "title",
-        "description",
-        "amount",
-        "createdAt",
-        "lastUpdated",
-      ],
-      expenseParamKeys = Object.keys(expense),
-      keysValidator =
-        expenseParamKeys.length == expenseKeys.length &&
-        expenseKeys.every((key) => expenseParamKeys.includes(key));
+  async getUser():Promise<userDetails | string>{
+    const user = this.authenticateUser(),
+      tableExists = await this.tableExists("users")
+    
+    if(user instanceof Object){
+      try{
+        if(tableExists){
+          let userObject = await this.client.query("SELECT * FROM users WHERE id::text=$1",[(user as any).id])
+          
+          if(userObject.rowCount && userObject.rowCount > 0){
+            let userObj = userObject.rows[0]
 
-    for (let value of Object.values(expense)) {
-      if (!value || value.toString().length <= 0)
-        return "Ensure to provide a value in all fields";
-    }
+            if(userObj.password)
+              delete userObj.password
 
-    if (keysValidator)
-      try {
-        const expenseId = crypto.randomUUID();
-
-        await this.client.query(
-          `INSERT INTO expenses(id, userid, ${[...Object.keys(expense)].join(
-            ", "
-          )}) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
-          [expenseId, userId, ...Object.values(expense)]
-        );
-
-        return "Expense created";
-      } catch (error) {
-        return error;
+            return userObj
+          }
+          
+          else return "User doesn't exist"
+        }
+        else return "User table not created."
       }
-    else return `Ensure to provide all fields i.e. ${expenseKeys.join(", ")}`;
+      catch(error){
+        return (error as Error).message
+      }
+    }
+    else return "User not validated"
   }
 
-  async updateExpense(
-    userId: string,
-    expenseId: string,
-    newExpenseDetails: Partial<expense>
-  ): Promise<Error | string> {
-    try {
-      const expenseFinder = await this.client.query(
-        "SELECT * FROM expenses e INNER JOIN users u ON e.userid=u.id WHERE e.id=$1 and u.id=$2",
-        [expenseId, userId]
-      );
+  async loginUser(userDetails:Omit<userDetails,"name">):Promise<string | tokens>{
+    const keys = ["email","password"],
+      keyChecker = keys.every(key => Object.keys(userDetails).includes(key))
 
-      if (expenseFinder.rowCount && expenseFinder.rowCount > 0) {
-        for (let [key, value] of Object.entries(newExpenseDetails)) {
-          if (key != "createdAt" && key != "updatedAt" && key != "amount") {
-            if (value.toString().length > 0)
-              await this.client.query(
-                `UPDATE expenses SET ${key}=$1 WHERE id::text=$2 AND userid::text=$3`,
-                [value, expenseId, userId]
-              );
-            else return `${key} has an empty value`;
-          } else {
-            if (key == "createdAt" || key == "updatedAt") {
-              if (value)
-                await this.client.query(
-                  `UPDATE expenses SET ${key}=DATE $1 WHERE id::text=$2 AND userid::text=$3`,
-                  [value, expenseId, userId]
-                );
-              else return `${key} has an empty value`;
-            } else {
-              if (typeof value == "number" && value > 0) {
-                await this.client.query(
-                  `UPDATE expenses SET amount=$1 WHERE id::text=$2 AND userid::text=$3`,
-                  [value, expenseId, userId]
-                );
-              } else
-                return "Amount should have a valid integer inside and should be greater than 0";
+    if(!keyChecker)
+      return "Provide email and password in request body"
+
+    try{
+      const userRetrieval:QueryResult<any> = await this.client.query("SELECT * FROM users WHERE email=$1",[userDetails.email])
+
+      if(userRetrieval.rowCount && userRetrieval.rowCount > 0){
+        const user = userRetrieval.rows[0]
+
+        if(user.password == userDetails.password){
+          if(user.password)
+            delete user?.password
+
+          const userToken = generateToken(user)
+
+          if(userToken instanceof Error)
+            return userToken.message
+          else return userToken      
+        }
+        else return "Incorrect password";
+      }
+      else return "User doesn't exist"
+    }
+    catch(error){
+      return (error as Error).message
+    }
+  }
+}
+export class ExpenseDB extends UserDB implements Expense{
+  constructor(dbClient:Client,userToken:string){
+    super(dbClient,userToken);
+  }
+
+  async createExpense(expense:expense):Promise<string>{
+    const userObject = this.authenticateUser();
+
+    if(userObject instanceof Object){
+      const tableExists = await this.tableExists("expenses"),
+        expenseId = crypto.randomUUID(),
+        expenseKeys = ["category","title","description","createdAt","updatedAt","amount"],
+        checkKeysPresent = expenseKeys.every(key => Object.keys(expense).includes(key))
+
+      if(!tableExists){
+        try{
+          await this.client.query("CREATE TABLE expenses(id UUID NOT NULL PRIMARY KEY,user_id NOT NULL REFERENCES user(id),title TEXT NOT NULL,description TEXT, category TEXT,amount INT, created_at DATE,updated_at DATE)")
+        }
+        catch(error){
+          return `Database error, ${(error as Error).message}`
+        }
+      }
+
+      if(checkKeysPresent){
+          for(let [key,value] of Object.entries(expense)){
+            if(key == 'amount'){
+              if((value as number) < 0)
+                return "Amount cannot be negative"
+            }
+            else if(key == 'createdAt' || key == 'lastUpdated'){
+              const dateRegex=/^\d{4}-\d{2}-\d{2}$/g
+
+              if(!dateRegex.test(value as string)){
+                return `Invalid date passed in for ${key}`
+              }
+            }
+            else{
+              if((value as string).length <= 0)
+                return `${key} has an empty value. Not allowed.`
             }
           }
-        }
-        return "Update successful";
-      } else return "Expense not found";
-    } catch (error) {
-      return error;
-    }
-  }
 
-  async deleteExpense(
-    userId: string,
-    expenseId: string
-  ): Promise<string | Error> {
-    try {
-      const userFinder = await this.client.query(
-          "SELECT * FROM users WHERE id::text=$1",
-          [userId]
-        ),
-        expenseFinder = await this.client.query(
-          "SELECT * FROM expenses WHERE id::text=$1",
-          [expenseId]
-        );
+          try{
+            await this.client.query("INSERT INTO expenses(id,user_id,title,description,category,created_at,updated_at,amount) VALUES($1,$2,$3,$4,$5,$6,$7,$8);",[
+              expenseId,(userObject as any).id,expense.title,expense.description,expense.category,expense.createdAt,expense.updatedAt,expense.amount
+            ])
 
-      if (
-        userFinder.rowCount &&
-        userFinder.rowCount > 0 &&
-        expenseFinder.rowCount &&
-        expenseFinder.rowCount > 0
-      ) {
-        await this.client.query(
-          "DELETE FROM expenses WHERE id::text=$1 and userid::text=$2",
-          [expenseId, userId]
-        );
-        return "Successful deletion";
-      } else {
-        if (userFinder.rowCount && userFinder.rowCount == 0)
-          return "User does not exist";
-        else return "Expense does not exist";
+            return "Expense created successfully"
+          }
+          catch(error){
+            return `Database error, ${(error as Error).message}`
+          }
       }
-    } catch (error) {
-      return error;
+      else return `Incomplete details, ensure to provide title,description, category, amount, createdAt and updatedAt fields`
     }
+    else return `User object invalid ${userObject}`
   }
 
-  async clearExpenses(userId: string): Promise<string | Error> {
-    try {
-      let deletionOperation = await this.client.query(
-        "DELETE FROM expenses WHERE userid=$1",
-        [userId]
-      );
+  async getExpense(expenseId:string):Promise<expense | string>{
+    const tableExists = await this.tableExists("expenses")
 
-      if (deletionOperation.rowCount && deletionOperation.rowCount > 0)
-        return "Deletion successful";
-      return "Already deleted";
-    } catch (error) {
-      return error;
+    if(!tableExists){
+      try {
+        await this.client.query("CREATE TABLE expenses(id UUID NOT NULL PRIMARY KEY,user_id NOT NULL REFERENCES user(id),title TEXT NOT NULL,description TEXT, category TEXT,amount INT, created_at DATE,updated_at DATE)")
+      } catch(error) {
+        return `Database Error, ${(error as Error).message}`
+      }
+
+      return "Expense table not created"
     }
+
+    const userObject = this.authenticateUser()
+
+    if(userObject instanceof Object){
+      try{
+        const expenseQuery:QueryResult<expense> = await this.client.query("SELECT * FROM expenses WHERE id::text=$1 AND user_id::text=$2",[expenseId,(userObject as any).id])
+
+        if(expenseQuery.rowCount && expenseQuery.rowCount > 0)
+          return expenseQuery.rows[0]
+        else return "No such expense found"
+        
+      }
+      catch(error){
+        return `Error, ${error}`
+      }
+    } else return `User object invalid, ${typeof userObject}`
   }
 
-  async getExpense(
-    userId: string,
-    expenseId: string
-  ): Promise<Error | string | expense> {
-    try {
-      let expense = await this.client.query(
-        "SELECT e.id,e.userid,e.title,e.description,e.category,e.amount,e.createdat,e.lastupdated FROM expenses e INNER JOIN users u ON e.userId=u.id WHERE e.id::text=$1 AND e.userid::text=$2",
-        [expenseId, userId]
-      );
-      if (expense.rowCount && expense.rowCount > 0) return expense.rows[0];
-      return "Not found";
-    } catch (error) {
-      return error;
+  async getExpenses():Promise<expense[] | string>{
+    const tableExists = await this.tableExists("expenses")
+
+    if(!tableExists){
+      try {
+        await this.client.query("CREATE TABLE expenses(id UUID NOT NULL PRIMARY KEY,user_id NOT NULL REFERENCES user(id),title TEXT NOT NULL,description TEXT, category TEXT,amount INT, created_at DATE,updated_at DATE)")
+      } catch(error) {
+        return `Database Error, ${(error as Error).message}`
+      }
+
+      return "Expense table not created"
     }
+
+    const userObject = this.authenticateUser()
+
+    if(userObject instanceof Object){
+      try{
+        const expensesQuery:QueryResult<expense> = await this.client.query("SELECT e.id,e.title,e.description,e.category,e.amount,e.created_at,e.updated_at FROM expenses e INNER JOIN USERS u ON e.user_id=u.id")
+
+        if(expensesQuery.rowCount && expensesQuery.rowCount > 0)
+          return expensesQuery.rows
+
+        return "Empty expenses"
+      }
+      catch(error){
+        return `Database error, ${(error as Error).message}`
+      }
+    }
+    else return `Invalid user Object, ${typeof userObject}` 
   }
 
-  async getExpenses(userId: string): Promise<expense[] | Error | string> {
-    try {
-      let expense = await this.client.query(
-        "SELECT e.id,e.userid,e.title,e.description,e.category,e.amount,e.createdat,e.lastupdated FROM expenses e INNER JOIN users u ON e.userId=u.id WHERE e.userid::text=$1",
-        [userId]
-      );
-      if (expense.rowCount && expense.rowCount > 0) return expense.rows;
-      return "Not found";
-    } catch (error) {
-      return error;
+  async updateExpense(expenseId:string,expenseDetails:Partial<expense>):Promise<string>{
+    const tableExists = await this.tableExists("expenses")
+
+    if(!tableExists){
+      try {
+        await this.client.query("CREATE TABLE expenses(id UUID NOT NULL PRIMARY KEY,user_id NOT NULL REFERENCES user(id),title TEXT NOT NULL,description TEXT, category TEXT,amount INT, created_at DATE,updated_at DATE)")
+      } catch(error) {
+        return `Database Error, ${(error as Error).message}`
+      }
+
+      return "Expense table not created"
     }
+
+    const userObject = this.authenticateUser(),
+      date = new Date(),
+      formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+
+    if(userObject instanceof Object){
+      try {
+        for (let [key, value] of Object.entries(expenseDetails)) {
+          if(key == 'amount'){
+              if((value as number) < 0)
+                return "Amount cannot be negative"
+          }
+          else if(key == 'title' || key == 'category' || 'description'){
+            if((value as string).length <= 0)
+              return `${key} has an empty value. Not allowed.`
+            }
+          else continue;
+
+          await this.client.query(`UPDATE expenses SET ${key}=$1 WHERE id::text=$2 AND user_id::text=$3`,
+            [value, expenseId, (userObject as any).id]
+          );
+          await this.client.query(`UPDATE expenses SET updated_at=$1 WHERE id::text=$2 AND user_id::text=$3`,
+            [formattedDate, expenseId, (userObject as any).id]
+          );
+        }
+
+        return "Update successful";
+      } catch (error) {
+      return (error as Error).message;
+      }
+    }
+    else return `User object undefined, ${typeof userObject}`
+
   }
 
-  async getExpensesByCategory(
-    userId: string,
-    category: string
-  ): Promise<expense[] | Error | string> {
-    try {
-      let expense = await this.client.query(
-        "SELECT e.id,e.userid,e.title,e.description,e.category,e.amount,e.createdat,e.lastupdated FROM expenses e INNER JOIN users u ON e.userId=u.id WHERE e.userid::text=$1 AND e.category=$2",
-        [userId, category]
-      );
-      if (expense.rowCount && expense.rowCount > 0) return expense.rows;
-      return "Not found";
-    } catch (error) {
-      return error;
-    }
+  async deleteExpense(expenseId:string):Promise<string>{
+    const userObject = this.authenticateUser()
+
+    if(userObject instanceof Object){
+      try{
+        await this.client.query("DELETE FROM expenses WHERE id::text=$1 AND user_id::text=$2",[
+          expenseId,(userObject as any).id
+        ])
+
+        return "Expense deleted"
+      }
+      catch(error){
+        return `Database Error, ${(error as Error).message}`
+      }
+    } else return "Authentication failed"
+  }
+
+  async deleteExpenses():Promise<string>{
+    const userObject = this.authenticateUser()
+    
+    if(userObject instanceof Object){
+      try{
+        await this.client.query("DELETE FROM expenses WHERE user_id::text=$1",[(userObject as any).id])
+
+        return "Expenses deleted"
+      }
+      catch(error){
+        return `Database error, ${(error as Error).message}`
+      }
+    } else return "Authentication failed"
   }
 }

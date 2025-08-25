@@ -1,5 +1,7 @@
-const Add = (): React.ReactNode => {
-  return <></>;
-};
+const Add = ():React.ReactNode => {
+    return(
+        <></>
+    )
+}
 
 export default Add;

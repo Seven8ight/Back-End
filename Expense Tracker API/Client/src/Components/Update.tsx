@@ -1,5 +1,7 @@
-const Update = (): React.ReactNode => {
-  return <></>;
-};
+const Update = ():React.ReactNode => {
+    return(
+        <></>
+    )
+}
 
 export default Update;

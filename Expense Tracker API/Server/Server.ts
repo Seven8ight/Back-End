@@ -492,6 +492,10 @@ export const pgClient = new pg.Client({
             );
         }
       }
+      else{
+        response.writeHead(500)
+        response.end(jsonResponse("Request URL invalid try again"))
+      }
     }
   );
 

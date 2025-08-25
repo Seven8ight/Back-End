@@ -6,7 +6,7 @@ import * as pg from "pg";
 import * as redis from "redis";
 import { expense, UserDB, ExpenseDB, userDetails } from "./Database/Postgres";
 import { CacheDB } from "./Cache/Cache";
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTGF3cmVuY2UgTXVjaGlyaSIsImVtYWlsIjoibGx3bXVjaGlyaUBnbWFpbC5jb20iLCJwYXNzd29yZCI6ImRhdmlkd2FuMSoiLCJpZCI6Ijc2MGY4OTk0LTk2MzEtNDdmOS1hZGM1LWJjMWQ1MjJiZjI5ZCIsImlhdCI6MTc1NTc4NzU4MX0.t5kagBrd1QZIrcQQoHY_MimfcIZ-LpV7vOBbKKBvZHc
+
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 export const pgClient = new pg.Client({

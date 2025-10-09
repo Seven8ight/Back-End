@@ -9,9 +9,237 @@
   -webkit-backdrop-filter: blur(5px);
 }
 
-#auth{
-  & div{
-    position:relative;
+#Auth {
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px 0px rgba(150, 150, 150, 0.5);
+  width: 45%;
+  height: 250px;
+
+  & #selectors {
   }
 }
 
+#Landing {
+  & header {
+    width: 90%;
+    height: 10%;
+    margin: 30px auto;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    & h1 {
+      font-family: "Dancing script", sans-serif;
+      font-size: 35px;
+    }
+
+    & div:first-of-type {
+      width: 27.5%;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+
+      & a {
+        text-align: center;
+        border-radius: 10px;
+        padding: 5px;
+        font-family: Barlow, sans-serif;
+        background: transparent;
+        color: grey;
+        text-decoration: none;
+        transition: color 0.5s ease-in-out;
+
+        &:hover {
+          cursor: pointer;
+          color: black;
+        }
+      }
+    }
+
+    & div:last-of-type {
+      & a {
+        color: grey;
+        transition: color 0.25s ease-in-out;
+
+        &:hover {
+          color: black;
+        }
+      }
+    }
+  }
+
+  & #home {
+    display: flex;
+    justify-content: space-around;
+
+    & #txt {
+      position: relative;
+      top: 130px;
+
+      & h1 {
+        font-family: "Barlow", sans-serif;
+        font-size: 3.5em;
+        font-weight: lighter;
+      }
+
+      & p {
+        font-family: "Inter", sans-serif;
+        line-height: 30px;
+      }
+
+      & button {
+        position: relative;
+        top: 20px;
+        width: 465px;
+        padding: 17.5px;
+        border-radius: 10px;
+        background: transparent;
+        border: 1px solid black;
+        font-size: 17.5px;
+        font-family: "Barlow", sans-serif;
+        transition: color 0.5s ease-in-out, background-color 0.5s ease-in-out,
+          box-shadow 0.5s ease-in-out;
+
+        &:hover {
+          background-color: black;
+          box-shadow: 5px 5px 10px 0px rgba(100, 100, 100, 0.85);
+          color: white;
+          cursor: pointer;
+        }
+      }
+    }
+
+    & #svg {
+      width: 50%;
+      height: 50%;
+    }
+  }
+
+  & #features {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & div {
+      width: 65%;
+      display: flex;
+
+      & #text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        & h1 {
+          font-family: "Dancing Script", sans-serif;
+        }
+
+        & p {
+          font-family: "Barlow", sans-serif;
+          line-height: 30px;
+        }
+      }
+      & #svg {
+        width: 500px;
+        height: 500px;
+      }
+      & #divider {
+        position: absolute;
+        left: 15%;
+        width: 70%;
+        height: 1px;
+        background-color: black;
+      }
+
+      &:nth-of-type(2) {
+        flex-direction: row-reverse;
+        width: 100%;
+
+        & #text {
+          position: relative !important;
+          left: 200px !important;
+        }
+      }
+    }
+  }
+
+  & #contact {
+    box-shadow: 5px 5px 5px 0px rgba(100, 100, 100, 0.85);
+    border-radius: 20px;
+    margin: auto;
+    width: 75%;
+    height: 300px;
+    display: flex;
+    justify-content: space-around;
+    position: relative;
+
+    & h2 {
+      font-family: "Barlow", sans-serif;
+      font-weight: lighter;
+    }
+
+    & #divider {
+      position: absolute;
+      bottom: 60px;
+      height: 200px;
+      width: 1px;
+      background-color: black;
+    }
+
+    & #form {
+      & form {
+        line-height: 50px;
+        width: 300px;
+        padding: 5px;
+        position: relative;
+        top: 10%;
+
+        & label {
+          font-family: "Barlow", sans-serif;
+        }
+
+        & textarea {
+          border-radius: 5px;
+        }
+
+        & input {
+          border: none;
+          border-bottom: 1px solid black;
+        }
+
+        & button {
+          position: relative;
+          top: 20px;
+          width: 200px;
+          padding: 7.5px;
+          border-radius: 10px;
+          background: transparent;
+          border: 1px solid black;
+          font-size: 17.5px;
+          font-family: "Barlow", sans-serif;
+          transition: color 0.5s ease-in-out, background-color 0.5s ease-in-out,
+            box-shadow 0.5s ease-in-out;
+
+          &:hover {
+            background-color: black;
+            box-shadow: 5px 5px 10px 0px rgba(100, 100, 100, 0.85);
+            color: white;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    & #image {
+      position: relative;
+      right: 250px;
+      top: 50px;
+
+      & img {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  }
+}

@@ -31,7 +31,7 @@ export class CacheDB {
       }
       return "Ensure to provide all fields, name, email and password";
     } catch (error) {
-      return error;
+      return error as Error;
     }
   }
 
@@ -46,7 +46,7 @@ export class CacheDB {
           "description",
           "amount",
           "createdDate",
-          "lastUpdated",
+          "updatedAt",
         ],
         expenseParamkeys = Object.keys(expense),
         keyValidator =
@@ -60,7 +60,7 @@ export class CacheDB {
           description: expense.description,
           amount: expense.amount,
           createdDate: expense.createdAt.toUTCString(),
-          lastUpdated: expense.lastUpdated.toUTCString(),
+          lastUpdated: expense.updatedAt.toUTCString(),
         });
 
         this.client.expire(expenseId, 3600);
@@ -73,7 +73,7 @@ export class CacheDB {
         ", "
       )}`;
     } catch (error) {
-      return error;
+      return error as Error;
     }
   }
 
@@ -89,7 +89,7 @@ export class CacheDB {
       if (cacheStorage?.toLowerCase() == "ok") return "Stored";
       return "Cache error, not stored";
     } catch (error) {
-      return error;
+      return error as Error;
     }
   }
 
@@ -115,7 +115,7 @@ export class CacheDB {
         return "Empty, no cache storage for expense " + expenseId;
       return expenseRetrieval;
     } catch (error) {
-      return error;
+      return error as Error;
     }
   }
 

@@ -18,5 +18,7 @@
       NB: The apple png files and favicon.ico are actually empty they dont work, its a fix to the normal default behaviour of safari trying to use an image for the start section in the browser
 8. Blog Platform API - https://roadmap.sh/projects/blogging-platform-api
 9. Todo List API - https://roadmap.sh/projects/todo-list-api
+10. Expense Tracker API - https://roadmap.sh/projects/expense-tracker-api
 
-NB: Personal tracker contains blog json file that takes up space.
+NB: Personal tracker contains blog json file that takes up space. Expense tracker api took me a while due to side quests, the UI is garbage but it works at least, will do better in the upcoming projects
+

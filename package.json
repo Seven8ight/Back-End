@@ -30,6 +30,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "jsonwebtoken": "^9.0.2",

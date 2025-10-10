@@ -19,7 +19,10 @@ type userCredentials = {
 const Signup = (params: params): React.ReactNode => {
     return (
       <>
-        <form onSubmit={async (event) => params.SubmitHandler(event)}>
+        <form
+          id="signup"
+          onSubmit={async (event) => params.SubmitHandler(event)}
+        >
           <label>Name</label>
           <br />
           <input
@@ -55,7 +58,10 @@ const Signup = (params: params): React.ReactNode => {
   Login = (params: Omit<params, "name" | "nameHandler">): React.ReactNode => {
     return (
       <>
-        <form onSubmit={async (event) => params.SubmitHandler(event)}>
+        <form
+          id="login"
+          onSubmit={async (event) => params.SubmitHandler(event)}
+        >
           <label htmlFor="email">Email</label>
           <input
             type="text"
@@ -63,7 +69,7 @@ const Signup = (params: params): React.ReactNode => {
             value={params.email}
             onChange={(event) => params.emailHandler(event.target.value)}
           />
-
+          <br />
           <label htmlFor="password">Password</label>
           <input
             type="text"
@@ -71,7 +77,7 @@ const Signup = (params: params): React.ReactNode => {
             value={params.password}
             onChange={(event) => params.passwordHandler(event.target.value)}
           />
-
+          <br />
           <button type="submit">Login</button>
         </form>
       </>
@@ -118,20 +124,26 @@ const Auth = (): React.ReactNode => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("userTokens");
 
     if (token) {
       (async () => {
-        let request = await fetch("http://localhost:3000/accounts/user", {
-            method: "GET",
-            headers: {
-              Authorization: token,
-            },
-          }),
-          response = await request.json();
+        try {
+          let userTokens: { accessToken: string; refreshToken: string } =
+              JSON.parse(token),
+            request = await fetch("http://localhost:3000/accounts/user", {
+              method: "GET",
+              headers: {
+                Authorization: userTokens.accessToken,
+              },
+            }),
+            response = await request.json();
 
-        if (request.status == 200 && response.message.id) navigate("/home");
-        else window.localStorage.removeItem("token");
+          if (request.status == 200 && response.message.id) navigate("/home");
+          else window.localStorage.removeItem("userTokens");
+        } catch (error) {
+          console.log(error);
+        }
       })();
     }
   }, []);

@@ -17,10 +17,10 @@ export const pgClient = new pg.Client({
     database: "expense_tracker",
   }),
   redisClient = redis.createClient({
-    socket:{
-      host:'localhost',
-      port:6379
-    }
+    socket: {
+      host: "localhost",
+      port: 6379,
+    },
   }),
   jsonResponse = (payload: string | any) =>
     JSON.stringify({ message: payload }),
@@ -58,20 +58,24 @@ export const pgClient = new pg.Client({
 
         switch (parsedPaths[0]) {
           case "accounts":
-            const UserDb = new UserDB(pgClient)
+            const UserDb = new UserDB(pgClient);
 
-            if(parsedPaths[1] != 'register' && parsedPaths[1] != 'login'){
-              const authId = request.headers['authorization']
+            if (parsedPaths[1] != "register" && parsedPaths[1] != "login") {
+              const authId = request.headers["authorization"];
 
-              if(!authId){
-                response.writeHead(401)
-                response.end(jsonResponse("Incomplete user credentials, provide the valid header"))
-                return
+              if (!authId) {
+                response.writeHead(401);
+                response.end(
+                  jsonResponse(
+                    "Incomplete user credentials, provide the valid header"
+                  )
+                );
+                return;
               }
 
-              UserDb.userToken = authId
+              UserDb.userToken = authId;
             }
-            
+
             switch (parsedPaths[1]) {
               case "register":
                 let requestBody: any = "";
@@ -82,13 +86,13 @@ export const pgClient = new pg.Client({
 
                 request.on("end", async () => {
                   let userBody: userDetails = JSON.parse(requestBody),
-                    createUser = await UserDb.createUser(userBody)
-                  
+                    createUser = await UserDb.createUser(userBody);
+
                   if (typeof createUser == "string") {
-                    if(createUser.includes("duplicate key")){
-                      response.writeHead(409)
-                      response.end(jsonResponse("User already exists"))
-                      return
+                    if (createUser.includes("duplicate key")) {
+                      response.writeHead(409);
+                      response.end(jsonResponse("User already exists"));
+                      return;
                     }
 
                     response.writeHead(409);
@@ -100,68 +104,72 @@ export const pgClient = new pg.Client({
                 });
                 break;
               case "login":
-                if(request.method != 'POST'){
-                  response.writeHead(405)
-                  response.end(jsonResponse("Invalid HTTP method, use POST instead"))
+                if (request.method != "POST") {
+                  response.writeHead(405);
+                  response.end(
+                    jsonResponse("Invalid HTTP method, use POST instead")
+                  );
                 }
 
-                let requestLoginBody:any = "";
+                let requestLoginBody: any = "";
 
-                request.on('data',(data:Buffer) => {
-                  requestLoginBody += data.toString()
-                })
+                request.on("data", (data: Buffer) => {
+                  requestLoginBody += data.toString();
+                });
 
-                request.on('end',async () => {
-                  let userBody:Omit<userDetails,"name"> = JSON.parse(requestLoginBody),
-                    loginRequest = await UserDb.loginUser(userBody)
+                request.on("end", async () => {
+                  let userBody: Omit<userDetails, "name"> =
+                      JSON.parse(requestLoginBody),
+                    loginRequest = await UserDb.loginUser(userBody);
 
-                  if(typeof loginRequest == 'string'){
-                    if(loginRequest.includes("exist")){
-                      response.writeHead(404)
-                      response.end(jsonResponse("User not found"))
+                  if (typeof loginRequest == "string") {
+                    if (loginRequest.includes("exist")) {
+                      response.writeHead(404);
+                      response.end(jsonResponse("User not found"));
+                    } else {
+                      response.writeHead(500);
+                      response.end(jsonResponse(loginRequest));
                     }
-                    else{
-                      response.writeHead(500)
-                      response.end(jsonResponse(loginRequest))
-                    }
+                  } else {
+                    response.writeHead(200);
+                    response.end(jsonResponse(loginRequest));
                   }
-                  else{
-                    response.writeHead(200)
-                    response.end(jsonResponse(loginRequest))
-                  }
-                })
+                });
 
-                break
+                break;
               case "user":
-                if (request.method == "GET") { 
-                  const userRetrieval = await UserDb.getUser()
-                  
-                  switch(typeof userRetrieval){
-                    case 'string':
-                      switch(userRetrieval){
+                if (request.method == "GET") {
+                  const userRetrieval = await UserDb.getUser();
+
+                  switch (typeof userRetrieval) {
+                    case "string":
+                      switch (userRetrieval) {
                         case "User doesn't exist":
-                          response.writeHead(404)
-                          response.end(jsonResponse(userRetrieval))
-                          break
+                          response.writeHead(404);
+                          response.end(jsonResponse(userRetrieval));
+                          break;
                         case "User table not created":
-                          response.writeHead(404)
-                          response.end(jsonResponse(userRetrieval))
-                          break
+                          response.writeHead(404);
+                          response.end(jsonResponse(userRetrieval));
+                          break;
                         case "User not validated":
-                          response.writeHead(403)
-                          response.end(jsonResponse("User authentication failed"))
-                          break
+                          response.writeHead(403);
+                          response.end(
+                            jsonResponse("User authentication failed")
+                          );
+                          break;
                         default:
-                          response.writeHead(500)
-                          response.end(jsonResponse(`Server error, ${userRetrieval}`))
-                          break
+                          response.writeHead(500);
+                          response.end(
+                            jsonResponse(`Server error, ${userRetrieval}`)
+                          );
+                          break;
                       }
-                      break
+                      break;
                     default:
-                      response.writeHead(200)
-                      response.end(jsonResponse(userRetrieval))
+                      response.writeHead(200);
+                      response.end(jsonResponse(userRetrieval));
                   }
-                  
                 } else {
                   response.writeHead(405);
                   response.end(
@@ -180,16 +188,14 @@ export const pgClient = new pg.Client({
 
                   request.on("end", async () => {
                     const newUserData: userDetails = JSON.parse(userData);
-                    
+
                     const updateQuery = await UserDb.updateUser(newUserData);
-                      
+
                     switch (updateQuery) {
                       case "Authentication failed":
                       case "User table doesn't exist":
                         response.writeHead(404);
-                        response.end(
-                          jsonResponse("User does not exist")
-                        );
+                        response.end(jsonResponse("User does not exist"));
                         break;
                       case `Update successful`:
                         response.writeHead(201);
@@ -199,9 +205,8 @@ export const pgClient = new pg.Client({
                         response.writeHead(409);
                         response.end(jsonResponse(updateQuery));
                         break;
-                      }                    
-                    } 
-                  );
+                    }
+                  });
                 } else {
                   response.writeHead(405);
                   response.end(
@@ -216,28 +221,32 @@ export const pgClient = new pg.Client({
                   try {
                     const deletionOperation = await UserDb.deleteUser();
 
-                    switch(deletionOperation){
+                    switch (deletionOperation) {
                       case "User deleted successfully":
-                        response.writeHead(204)
-                        response.end(jsonResponse("User deletion successful"))
-                        break
+                        response.writeHead(204);
+                        response.end(jsonResponse("User deletion successful"));
+                        break;
                       case "Authentication failed":
-                        response.writeHead(403)
-                        response.end(jsonResponse("Re-login again"))
-                        break
+                        response.writeHead(403);
+                        response.end(jsonResponse("Re-login again"));
+                        break;
                       case "User id absent":
-                        response.writeHead(401)
-                        response.end(jsonResponse("Provide authentication credentials"))
-                        break
+                        response.writeHead(401);
+                        response.end(
+                          jsonResponse("Provide authentication credentials")
+                        );
+                        break;
                       default:
-                        response.writeHead(500)
-                        response.end(jsonResponse(`Server error ${deletionOperation}`))
-                        break
+                        response.writeHead(500);
+                        response.end(
+                          jsonResponse(`Server error ${deletionOperation}`)
+                        );
+                        break;
                     }
                   } catch (error) {
                     response.writeHead(500);
                     response.end(jsonResponse("Server error try again"));
-                  }                
+                  }
                 } else {
                   response.writeHead(405);
                   response.end(
@@ -253,15 +262,17 @@ export const pgClient = new pg.Client({
             }
             break;
           case "expenses":
-            const userToken = request.headers['authorization']
+            const userToken = request.headers["authorization"];
 
-            if(!userToken){
-              response.writeHead(401)
-              response.end(jsonResponse("Provide authentication in the header"))
-              return
+            if (!userToken) {
+              response.writeHead(401);
+              response.end(
+                jsonResponse("Provide authentication in the header")
+              );
+              return;
             }
 
-            const ExpenseDb = new ExpenseDB(pgClient,userToken)
+            const ExpenseDb = new ExpenseDB(pgClient, userToken);
 
             switch (parsedPaths[1]) {
               case "get":
@@ -272,7 +283,9 @@ export const pgClient = new pg.Client({
                     typeof expenseInCache == "string" ||
                     expenseInCache instanceof Error
                   ) {
-                    const expenseRetrieval = await ExpenseDb.getExpense(expenseId);
+                    const expenseRetrieval = await ExpenseDb.getExpense(
+                      expenseId
+                    );
 
                     if (expenseRetrieval == "No such expense found") {
                       response.writeHead(404);
@@ -296,43 +309,47 @@ export const pgClient = new pg.Client({
                 break;
               case "getall":
                 if (request.method == "GET") {
-                  const user = await ExpenseDb.getUser()
+                  const user = await ExpenseDb.getUser();
 
-                  if(typeof user != 'string'){
-                    const expensesInCache = await cacheDB.getExpenses((user as any).id);
-                  
-                    if (expensesInCache instanceof Error || (typeof expensesInCache == 'string' && expensesInCache.toLowerCase().includes("empty"))) {
+                  if (typeof user != "string") {
+                    const expensesInCache = await cacheDB.getExpenses(
+                      (user as any).id
+                    );
+
+                    if (
+                      expensesInCache instanceof Error ||
+                      (typeof expensesInCache == "string" &&
+                        expensesInCache.toLowerCase().includes("empty"))
+                    ) {
                       const expenseRetrieval = await ExpenseDb.getExpenses();
 
-                      if (expenseRetrieval instanceof Error) {
-                        response.writeHead(500);
-                        response.end(
-                          jsonResponse(
-                            "Server error in fetching expenses, please try again"
-                          )
-                        );
-                      } else if (typeof expenseRetrieval == "string") {
-                        response.writeHead(200);
-                        response.end(jsonResponse("No expenses found"));
+                      if (typeof expenseRetrieval == "string") {
+                        if (expenseRetrieval.includes("Error")) {
+                          response.writeHead(500);
+                          response.end(jsonResponse(expenseRetrieval));
+                        } else {
+                          response.writeHead(200);
+                          response.end(jsonResponse("No expenses found"));
+                        }
                       } else {
                         response.writeHead(200);
                         response.end(jsonResponse(expenseRetrieval));
                         await cacheDB.saveExpenses(
                           (user as any).id,
                           expenseRetrieval
-                      ) ;
+                        );
                       }
                     } else if (typeof expensesInCache == "string") {
                       response.writeHead(200);
                       response.end(jsonResponse(JSON.parse(expensesInCache)));
                     }
+                  } else {
+                    response.writeHead(500);
+                    response.end(
+                      jsonResponse("Server error in reading user, Re-login")
+                    );
                   }
-                  else{
-                    response.writeHead(500)
-                    response.end(jsonResponse("Server error in reading user, Re-login"))
-                  }
-                }
-                else {
+                } else {
                   response.writeHead(405);
                   response.end(jsonResponse("Pass in a GET Method instead"));
                 }
@@ -346,30 +363,37 @@ export const pgClient = new pg.Client({
                   });
 
                   request.on("end", async () => {
-                    let expenseData:expense = JSON.parse(requestBody),
-                      additionOperation = await ExpenseDb.createExpense(expenseData);
+                    let expenseData: expense = JSON.parse(requestBody),
+                      additionOperation = await ExpenseDb.createExpense(
+                        expenseData
+                      );
 
-                    switch(additionOperation){
+                    switch (additionOperation) {
                       case "Expense created successfully":
                         response.writeHead(201);
-                        response.end(jsonResponse("Expense created successfully"));
+                        response.end(
+                          jsonResponse("Expense created successfully")
+                        );
                         break;
                       case "Incomplete details, ensure to provide title,description, category, amount, createdAt and updatedAt fields":
                         response.writeHead(409);
-                        response.end(jsonResponse(additionOperation))
-                        break
+                        response.end(jsonResponse(additionOperation));
+                        break;
                       default:
-                        if(additionOperation.includes("User object")){
+                        if (additionOperation.includes("User object")) {
                           response.writeHead(403);
-                          response.end(jsonResponse("Reauthenticate yourself"))
-                        }
-                        else if(additionOperation.includes("Database")){
-                          response.writeHead(500)
-                          response.end(jsonResponse("Server error, please try again later, Error: " + additionOperation));
-                        }
-                        else{
-                          response.writeHead(409)
-                          response.end(jsonResponse(additionOperation))
+                          response.end(jsonResponse("Reauthenticate yourself"));
+                        } else if (additionOperation.includes("Database")) {
+                          response.writeHead(500);
+                          response.end(
+                            jsonResponse(
+                              "Server error, please try again later, Error: " +
+                                additionOperation
+                            )
+                          );
+                        } else {
+                          response.writeHead(409);
+                          response.end(jsonResponse(additionOperation));
                         }
                     }
                   });
@@ -404,34 +428,32 @@ export const pgClient = new pg.Client({
                         expenseId,
                         updateData
                       );
-                    switch(updationOperation){
+                    switch (updationOperation) {
                       case "Update successful":
-                        try{
+                        try {
                           await cacheDB.expireImmediate("expenses");
                           await cacheDB.expireImmediate(`${expenseId}`);
+                        } catch (error) {
+                          console.log(error);
                         }
-                        catch(error){
-                          console.log(error)
-                        }
-                        response.writeHead(201)
-                        response.end(jsonResponse(updationOperation))
-                        break
+                        response.writeHead(201);
+                        response.end(jsonResponse(updationOperation));
+                        break;
                       case "Expense table not created":
-                        response.writeHead(500)
-                        response.end(jsonResponse(updationOperation))
-                        break
+                        response.writeHead(500);
+                        response.end(jsonResponse(updationOperation));
+                        break;
                       default:
-                        if(updationOperation.toLowerCase().includes("error")){
-                          response.writeHead(500)
-                          response.end(jsonResponse(updationOperation))
+                        if (updationOperation.toLowerCase().includes("error")) {
+                          response.writeHead(500);
+                          response.end(jsonResponse(updationOperation));
+                        } else {
+                          response.writeHead(404);
+                          response.end(jsonResponse(updationOperation));
                         }
-                        else{
-                          response.writeHead(404)
-                          response.end(jsonResponse(updationOperation))
-                        }
-                        break
+                        break;
                     }
-                  }); 
+                  });
                 } else {
                   response.writeHead(405);
                   response.end(
@@ -444,32 +466,32 @@ export const pgClient = new pg.Client({
                   const expenseId = parsedPaths[2];
 
                   if (!expenseId || expenseId.length <= 0) {
-                        response.writeHead(409);
-                        response.end(
-                          jsonResponse(
-                            "Please provide the expense id on the route"
-                          )
-                        );
+                    response.writeHead(409);
+                    response.end(
+                      jsonResponse("Please provide the expense id on the route")
+                    );
                   } else {
                     const deletionOperation = await ExpenseDb.deleteExpense(
                       expenseId
                     );
 
-                    switch(deletionOperation){
+                    switch (deletionOperation) {
                       case "Expense deleted":
                         await cacheDB.expireImmediate("expenses");
                         await cacheDB.expireImmediate(`${expenseId}`);
-                        response.writeHead(204)
-                        response.end(jsonResponse("Expense deleted"))
-                        break
+                        response.writeHead(204);
+                        response.end(jsonResponse("Expense deleted"));
+                        break;
                       case "Authentication failed":
-                        response.writeHead(403)
-                        response.end(jsonResponse("Authentication failed"))
-                        break
+                        response.writeHead(403);
+                        response.end(jsonResponse("Authentication failed"));
+                        break;
                       default:
                         response.writeHead(500);
-                        response.end(jsonResponse("Server error: " + deletionOperation))
-                        break
+                        response.end(
+                          jsonResponse("Server error: " + deletionOperation)
+                        );
+                        break;
                     }
                   }
                 } else {
@@ -491,10 +513,9 @@ export const pgClient = new pg.Client({
               jsonResponse("Index route for express tracker server api")
             );
         }
-      }
-      else{
-        response.writeHead(500)
-        response.end(jsonResponse("Request URL invalid try again"))
+      } else {
+        response.writeHead(500);
+        response.end(jsonResponse("Request URL invalid try again"));
       }
     }
   );

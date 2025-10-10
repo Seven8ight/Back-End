@@ -92,7 +92,6 @@ const Landing = (): React.ReactNode => {
           <div id="svg">
             <Lottie animationData={CRUDAnim} loop={true} />
           </div>
-          <div id="divider" />
         </div>
         <div id="manage">
           <div id="text">
@@ -105,7 +104,6 @@ const Landing = (): React.ReactNode => {
           <div id="svg">
             <Lottie animationData={ManageAnim} loop={true} />
           </div>
-          <div id="divider" />
         </div>
         <div id="Visualize">
           <div id="text">
@@ -118,7 +116,6 @@ const Landing = (): React.ReactNode => {
           <div id="svg">
             <Lottie animationData={VisualAnim} loop={true} />
           </div>
-          <div id="divider" />
         </div>
       </div>
       <div id="contact">

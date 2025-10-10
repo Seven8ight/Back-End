@@ -19,7 +19,7 @@ export const generateToken = (payload: Object): tokens | Error => {
         refreshToken: jwt.sign(payload, refreshSignature as string),
       };
     } catch (error) {
-      return error;
+      return error as Error;
     }
   },
   verifyAccessToken = (token: string): string | Object | Error => {
@@ -30,7 +30,7 @@ export const generateToken = (payload: Object): tokens | Error => {
 
       return "Invalid Access Token";
     } catch (error) {
-      return error;
+      return error as Error;
     }
   },
   refreshAccessToken = (
@@ -46,6 +46,6 @@ export const generateToken = (payload: Object): tokens | Error => {
 
       return "Refresh Token invalid, refresh failed";
     } catch (error) {
-      return error;
+      return error as Error;
     }
   };

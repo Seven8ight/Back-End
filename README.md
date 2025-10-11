@@ -30,4 +30,4 @@ To execute the TMDB CLI application ensure to run
    npm i -g .
 ```
 
-first and then execute the app as TMDB --type <choice - popular, top etc
+first and then execute the app as TMDB --type <choice - popular, top etc>

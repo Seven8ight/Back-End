@@ -20,6 +20,7 @@
 9. Todo List API - https://roadmap.sh/projects/todo-list-api
 10. Expense Tracker API - https://roadmap.sh/projects/expense-tracker-api
 11. TMDB CLI Application - https://roadmap.sh/projects/tmdb-cli
+12. Caching Proxy - https://roadmap.sh/projects/caching-server
 
 NB:
 Personal tracker contains blog json file that takes up space. Expense tracker api took me a while due to side quests, the UI is garbage but it works at least, will do better in the upcoming projects.
@@ -28,6 +29,17 @@ To execute the TMDB CLI application ensure to run
 
 ```bash
    npm i -g .
+
+   TMDB-app --type <playing,popular,top,upcoming>
+```
+
+Caching proxy same as TMDB CLI application
+
+```bash
+   npm i -g .
+   Caching-proxy --origin <url> --port <4000>
+   Caching-proxy --port <4000> --origin <url>
+   Caching-proxy --clear-cache yes
 ```
 
 first and then execute the app as TMDB --type <choice - popular, top etc>

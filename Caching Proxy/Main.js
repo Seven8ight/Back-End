@@ -57,7 +57,7 @@ var options = {};
 args.forEach(function (arg, index, arr) {
     if (!arg.includes("clear-cache")) {
         if (arg.includes("--") && !arr[index + 1].includes("--"))
-            options[arg.replaceAll("--", "")] = arr[index + 1];
+            options[arg.replace(/-+/g, "")] = arr[index + 1];
     }
     else
         options["clear_cache"] = "yes";

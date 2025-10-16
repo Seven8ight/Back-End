@@ -21,6 +21,7 @@
 10. Expense Tracker API - https://roadmap.sh/projects/expense-tracker-api
 11. TMDB CLI Application - https://roadmap.sh/projects/tmdb-cli
 12. Caching Proxy - https://roadmap.sh/projects/caching-server
+13. Markdown Note-taking app - https://roadmap.sh/projects/markdown-note-taking-app
 
 NB:
 Personal tracker contains blog json file that takes up space. Expense tracker api took me a while due to side quests, the UI is garbage but it works at least, will do better in the upcoming projects.

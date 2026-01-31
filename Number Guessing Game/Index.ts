@@ -1,8 +1,8 @@
-#!usr/bin/env node
+#!/usr/bin/env node
 import { EventEmitter } from "node:events";
 import { createInterface, Interface } from "node:readline";
 import * as fs from "fs/promises";
-import path from "node:path";
+import * as path from "path";
 import * as chalk from "chalk";
 
 type Difficulty = null | "easy" | "medium" | "hard";
@@ -32,19 +32,19 @@ const generateAnswer = (): number => Math.floor(Math.random() * 100) + 1,
 const retry = async (
     status: "win" | "lose",
     time: number,
-    answer: number
+    answer: number,
   ): Promise<void> => {
     try {
       if (status == "win") {
         console.log(
           chalk.greenBright(
-            `\nCorrect! It took you ${time}s to figure it out.\n`
-          )
+            `\nCorrect! It took you ${time}s to figure it out.\n`,
+          ),
         );
       } else {
         console.log(
           chalk.redBright("\nYou lose. ") +
-            chalk.gray(`The correct answer was ${answer}\n`)
+            chalk.gray(`The correct answer was ${answer}\n`),
         );
       }
 
@@ -59,11 +59,11 @@ const retry = async (
             gameEvents.emit("Begin");
           } else {
             console.log(
-              chalk.whiteBright.underline("\nThank you for playing!\n")
+              chalk.whiteBright.underline("\nThank you for playing!\n"),
             );
             highscoreWrite().then(() => process.exit(0));
           }
-        }
+        },
       );
     } catch (error) {
       console.log(error);
@@ -73,20 +73,20 @@ const retry = async (
     let highscores: { Highscores: HighScore[] } = JSON.parse(
       await fs.readFile(path.join(__dirname, "Highscores.json"), {
         encoding: "utf-8",
-      })
+      }),
     );
 
     currentHighscore.Round = highscores.Highscores.length + 1;
     highscores.Highscores.push(currentHighscore as HighScore);
     highscores.Highscores.sort(
-      (previous, current) => current.Highscore - previous.Highscore
+      (previous, current) => current.Highscore - previous.Highscore,
     );
 
     await fs.writeFile(
       path.join(__dirname, "Highscores.json"),
       JSON.stringify({
         ...highscores,
-      })
+      }),
     );
   };
 
@@ -99,7 +99,7 @@ gameEvents.once("Highscore Storage", async () => {
       }),
       {
         flag: "wx",
-      }
+      },
     );
   } catch (error: any) {
     if (error.code == "EEXIST") {
@@ -123,7 +123,7 @@ gameEvents.on("Begin", () => {
       chalk.whiteBright("Select a difficulty level:\n\n") +
       chalk.gray("1. Easy (10 attempts)\n") +
       chalk.yellowBright("2. Medium (5 attempts)\n") +
-      chalk.redBright("3. Hard (3 attempts)\n\n")
+      chalk.redBright("3. Hard (3 attempts)\n\n"),
   );
 
   gameEvents.removeAllListeners("Ask");
@@ -157,11 +157,11 @@ gameEvents.on("Attempts", (difficulty: Difficulty) => {
           difficulty === "easy"
             ? chalk.gray("Easy (10 attempts)")
             : difficulty === "medium"
-            ? chalk.yellowBright("Medium (5 attempts)")
-            : chalk.redBright("Hard (3 attempts)")
+              ? chalk.yellowBright("Medium (5 attempts)")
+              : chalk.redBright("Hard (3 attempts)"),
         ) +
-        "\n"
-    )
+        "\n",
+    ),
   );
 
   gameEvents.removeAllListeners("Guesses");
@@ -175,7 +175,7 @@ gameEvents.on("Attempts", (difficulty: Difficulty) => {
       chalk.whiteBright(
         guessAttempts + 1 !== maxAttempts
           ? `Guess ${guessAttempts + 1}: `
-          : chalk.bold("Final Guess: ")
+          : chalk.bold("Final Guess: "),
       ),
       (guess: any) => {
         const parsedGuess = parseInt(guess);
@@ -188,13 +188,13 @@ gameEvents.on("Attempts", (difficulty: Difficulty) => {
           console.log(
             parsedGuess - correctAnswer <= 20
               ? chalk.yellowBright("Close! Try a bit smaller.")
-              : chalk.redBright("Too high.")
+              : chalk.redBright("Too high."),
           );
         } else if (parsedGuess < correctAnswer) {
           console.log(
             correctAnswer - parsedGuess <= 20
               ? chalk.yellowBright("Close! Try a bit bigger.")
-              : chalk.redBright("Too low.")
+              : chalk.redBright("Too low."),
           );
         } else {
           clearInterval(timerHandler);
@@ -203,7 +203,7 @@ gameEvents.on("Attempts", (difficulty: Difficulty) => {
 
         guessAttempts++;
         gameEvents.emit("Guesses");
-      }
+      },
     );
   });
 
@@ -216,7 +216,7 @@ gameEvents.on(
     (currentHighscore.Highscore as number) +=
       difficulty == "easy" ? 1 : difficulty == "medium" ? 2 : 3;
     retry("win", time, answer);
-  }
+  },
 );
 
 gameEvents.on("Lose", (time: number, answer: number) => {

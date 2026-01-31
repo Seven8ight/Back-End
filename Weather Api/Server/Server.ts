@@ -71,7 +71,7 @@ dotenv.config({
   path: path.join(__dirname, ".env"),
 });
 
-const portNumber = process.env.PORT,
+const portNumber = process.env.PORT || 3000,
   visualApiKey = process.env.VISUAL_CROSSING,
   mimetypes = {
     html: "text/html",
@@ -89,7 +89,7 @@ const portNumber = process.env.PORT,
   server: http.Server = http.createServer(
     async (
       request: http.IncomingMessage,
-      response: http.ServerResponse<http.IncomingMessage>
+      response: http.ServerResponse<http.IncomingMessage>,
     ) => {
       let Url = url.parse(request.url as string),
         urlPath = Url.pathname as string,
@@ -99,7 +99,7 @@ const portNumber = process.env.PORT,
           mimetypes[parsedResource as keyof {}] || "application/octet-stream",
         file = path.join(
           path.resolve(__dirname, "../Client"),
-          urlPath == "/" ? "/index.html" : urlPath
+          urlPath == "/" ? "/index.html" : urlPath,
         ),
         redisKeys = await redisClient.keys("*");
 
@@ -178,15 +178,16 @@ const portNumber = process.env.PORT,
                             response.end(
                               JSON.stringify({
                                 message: "City / state not found",
-                              })
+                              }),
                             );
                             break;
                           default:
+                            console.log(error);
                             response.writeHead(500);
                             response.end(
                               JSON.stringify({
                                 message: "Server error",
-                              })
+                              }),
                             );
                         }
                       }
@@ -198,11 +199,11 @@ const portNumber = process.env.PORT,
                         JSON.stringify({
                           message: "Error caught in server",
                           serverError: error.message,
-                        })
+                        }),
                       );
                       return;
                     });
-                  }
+                  },
                 );
 
                 weatherRequest.on("error", (error: Error) => {
@@ -210,7 +211,7 @@ const portNumber = process.env.PORT,
                   response.end(
                     JSON.stringify({
                       Error: error.message,
-                    })
+                    }),
                   );
                   return;
                 });
@@ -226,7 +227,7 @@ const portNumber = process.env.PORT,
               response.end(
                 JSON.stringify({
                   Message: "No body parsed",
-                })
+                }),
               );
             }
           });
@@ -238,11 +239,11 @@ const portNumber = process.env.PORT,
           response.end(
             path.extname(urlPath).substring(1) == "png"
               ? await imageRenderer(file)
-              : await weatherPageRenderer(file)
+              : await weatherPageRenderer(file),
           );
           break;
       }
-    }
+    },
   );
 
 redisClient.on("error", (error: Error) => {
@@ -256,7 +257,7 @@ server.listen(portNumber, async () => {
   console.log(
     redisClient.isReady
       ? "Redis client up and running, server is running at port " + portNumber
-      : "Redis client down, server is up and running at port " + portNumber
+      : "Redis client down, server is up and running at port " + portNumber,
   );
 });
 

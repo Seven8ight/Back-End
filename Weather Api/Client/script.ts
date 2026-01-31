@@ -21,7 +21,7 @@ const searchBtn = document.querySelector<HTMLButtonElement>("#searcher"),
   tempTag = document.querySelector<HTMLSpanElement>("#temp span:last-of-type"),
   humidityTag = document.querySelector<HTMLSpanElement>("#humidity p span"),
   precipitationTag = document.querySelector<HTMLSpanElement>(
-    "#precipitation p span"
+    "#precipitation p span",
   ),
   pressureTag = document.querySelector<HTMLSpanElement>("#pressure p span"),
   visibilityTag = document.querySelector<HTMLSpanElement>("#visibility p span"),

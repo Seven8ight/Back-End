@@ -9,7 +9,7 @@ const Add = (): React.ReactNode => {
     formRef = useRef<HTMLFormElement>(null),
     submitBtnRef = useRef<HTMLButtonElement>(null);
 
-  const submissionEvent = async (event: SubmitEvent) => {
+  const submissionEvent = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (submitBtnRef && submitBtnRef.current) {
@@ -39,7 +39,7 @@ const Add = (): React.ReactNode => {
               tags: (tags as string).split(",").map((tag) => tag.trim()),
               content: content,
             }),
-          }
+          },
         );
 
         if (submitBtnRef.current) {
@@ -67,8 +67,6 @@ const Add = (): React.ReactNode => {
     })();
   };
 
-  formRef.current?.addEventListener("submit", submissionEvent);
-
   return (
     <>
       <div id="Add">
@@ -90,7 +88,7 @@ const Add = (): React.ReactNode => {
           </p>
         </div>
         <div id="form">
-          <form ref={formRef}>
+          <form onSubmit={(event) => submissionEvent(event)} ref={formRef}>
             <label htmlFor="title">Blog title</label>
             <br />
             <input

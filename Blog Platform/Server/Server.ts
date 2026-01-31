@@ -12,7 +12,6 @@ dotenv.config({
 
 export const redisClient = createClient();
 const pgClient: Client = new Client({
-  host: "localhost",
   port: 5432,
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
@@ -33,22 +32,22 @@ const jsonReader = async (data: any): Promise<Error | any> => {
   server = http.createServer(
     async (
       request: http.IncomingMessage,
-      response: http.ServerResponse<http.IncomingMessage>
+      response: http.ServerResponse<http.IncomingMessage>,
     ) => {
       const url = URL.parse(request.url as string),
         routeSegment = (url.pathname as string).split("/").filter(Boolean);
 
       response.setHeader(
         "Access-Control-Allow-Origin",
-        "http://localhost:5173"
+        "http://localhost:5173",
       );
       response.setHeader(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
+        "GET, POST, PUT, DELETE, OPTIONS",
       );
       response.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-Type, accept"
+        "Content-Type, accept",
       );
 
       if (request.method == "OPTIONS") {
@@ -75,7 +74,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   response.end(
                     JSON.stringify({
                       message: "Error in retrieving blogs",
-                    })
+                    }),
                   );
                   return;
                 } else {
@@ -90,7 +89,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                 response.end(
                   JSON.stringify({
                     Blogs: getCachedBlogs,
-                  })
+                  }),
                 );
                 return;
               }
@@ -110,7 +109,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                     response.end(
                       JSON.stringify({
                         message: "Invalid json parsed in",
-                      })
+                      }),
                     );
                     return;
                   }
@@ -122,7 +121,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                     response.end(
                       JSON.stringify({
                         message: "Blog insertion unsuccessful",
-                      })
+                      }),
                     );
                   } else {
                     const blogsCached = await redisClient.get("All blogs");
@@ -134,7 +133,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
 
                     response.writeHead(201);
                     response.end(
-                      JSON.stringify({ message: "Blog created successfully" })
+                      JSON.stringify({ message: "Blog created successfully" }),
                     );
                   }
 
@@ -146,7 +145,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   JSON.stringify({
                     message:
                       "Invalid method, try post instead with a json body",
-                  })
+                  }),
                 );
                 return;
               }
@@ -168,14 +167,14 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                     response.end(
                       JSON.stringify({
                         message: "Ensure to pass in valid json data",
-                      })
+                      }),
                     );
                     return;
                   }
 
                   let updateQuery = await blogDB.updateBlog(
                       blogUpdateId,
-                      updateData
+                      updateData,
                     ),
                     updatedBlog = await blogDB.specificBlog(blogUpdateId);
 
@@ -184,7 +183,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                     response.end(
                       JSON.stringify({
                         message: "Server error, please try again",
-                      })
+                      }),
                     );
                     return;
                   }
@@ -195,7 +194,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   response.end(
                     JSON.stringify({
                       updatedBlog,
-                    })
+                    }),
                   );
                 });
               } else {
@@ -203,7 +202,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                 response.end(
                   JSON.stringify({
                     message: "Pass in a different route method",
-                  })
+                  }),
                 );
               }
               break;
@@ -216,7 +215,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                 response.end(
                   JSON.stringify({
                     message: "Server error in deletion of blog",
-                  })
+                  }),
                 );
                 return;
               }
@@ -224,7 +223,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
               response.end(
                 JSON.stringify({
                   message: "Deletion successful",
-                })
+                }),
               );
               return;
             case "blog":
@@ -242,7 +241,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   response.end(
                     JSON.stringify({
                       message: "Server error, please try again",
-                    })
+                    }),
                   );
                   return;
                 } else {
@@ -258,14 +257,14 @@ const jsonReader = async (data: any): Promise<Error | any> => {
             case "tags":
               const urlQuery = (url.query as string).slice(
                   1,
-                  (url.query as string).length
+                  (url.query as string).length,
                 ),
                 queries = urlQuery.includes("&")
                   ? urlQuery.split("&")
                   : urlQuery;
 
               const getBlogByTag = await redisClient.get(
-                typeof queries == "string" ? queries : queries.join(", ")
+                typeof queries == "string" ? queries : queries.join(", "),
               );
 
               if (getBlogByTag == null) {
@@ -279,14 +278,14 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                   response.end(
                     JSON.stringify({
                       message: "Server error in parsing tags check again",
-                    })
+                    }),
                   );
                 } else {
                   response.writeHead(200);
                   response.end(
                     JSON.stringify({
                       "Blog Tags": blogTags,
-                    })
+                    }),
                   );
                 }
               } else {
@@ -294,7 +293,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
                 response.end(
                   JSON.stringify({
                     "Blog tags": (getBlogByTag as string).replace(/\g/, ""),
-                  })
+                  }),
                 );
               }
 
@@ -304,7 +303,7 @@ const jsonReader = async (data: any): Promise<Error | any> => {
               response.end(
                 JSON.stringify({
                   message: "Ensure to pass in a route here",
-                })
+                }),
               );
               break;
           }
@@ -316,24 +315,31 @@ const jsonReader = async (data: any): Promise<Error | any> => {
           response.end(
             JSON.stringify({
               message: "Connection successful",
-            })
+            }),
           );
           break;
       }
-    }
+    },
   );
 
 server.listen(process.env.PORT || 3000, async () => {
-  await redisClient.connect();
-  await pgClient.connect();
+  try {
+    await redisClient.connect();
+    await pgClient.connect();
 
-  let tableExists = await pgClient.query("SELECT * FROM blogs");
+    await pgClient.query("SELECT * FROM blogs");
 
-  if (tableExists instanceof Error) {
+    if (redisClient.isReady && pgClient.user)
+      process.stdout.write("Database, Cache and server are up and running\n");
+    else if (!redisClient.isReady)
+      process.stdout.write(
+        "Cache server unavailable, Database and server are up and running\n",
+      );
+  } catch (error) {
     console.log("Table does not exist, creating table");
     await pgClient
       .query(
-        "CREATE TABLE blogs(title VARCHAR(100), content TEXT, category TEXT, tags TEXT[]);"
+        "CREATE TABLE blogs(id UUID DEFAULT uuid_generate_v4(), title VARCHAR(100), content TEXT, category TEXT, tags TEXT[]);",
       )
       .then(() => {
         process.stdout.write("Table created successfully");
@@ -343,13 +349,6 @@ server.listen(process.env.PORT || 3000, async () => {
         console.log(error);
       });
   }
-
-  if (redisClient.isReady && pgClient.user)
-    process.stdout.write("Database, Cache and server are up and running\n");
-  else if (!redisClient.isReady)
-    process.stdout.write(
-      "Cache server unavailable, Database and server are up and running\n"
-    );
 });
 
 process.on("uncaughtException", (error) => {

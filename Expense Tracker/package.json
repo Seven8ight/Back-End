@@ -1,13 +1,13 @@
 {
   "name": "expense-tracker",
   "version": "1.0.0",
-  "main": "./Dist/Index.js",
+  "main": "Index.js",
   "scripts": {
     "build": "npm install && npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "Expense-Tracker": "./Dist/Index.js"
+    "Expense-Tracker": "./Index.js"
   },
   "keywords": [],
   "author": "",

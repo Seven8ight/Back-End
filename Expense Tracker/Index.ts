@@ -1,4 +1,4 @@
-#!usr/bin/env node
+#!/usr/bin/env node
 import { EventEmitter } from "node:events";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -16,20 +16,20 @@ type Expenses = {
   Budget: number;
 };
 
-const Months = {
-  January: 1,
-  February: 2,
-  March: 3,
-  April: 4,
-  May: 5,
-  June: 6,
-  July: 7,
-  August: 8,
-  September: 9,
-  October: 10,
-  November: 11,
-  December: 12,
-};
+enum Months {
+  January = 1,
+  February = 2,
+  March = 3,
+  April = 4,
+  May = 5,
+  June = 6,
+  July = 7,
+  August = 8,
+  September = 9,
+  October = 10,
+  November = 11,
+  December = 12,
+}
 
 const expenseEvents = new EventEmitter(),
   commands = process.argv.slice(2).map((command) => command.replace("--", ""));
@@ -62,14 +62,14 @@ expenseEvents.once("Generate File", async () => {
   } catch (error: any) {
     if (error.code == "ENOENT") {
       process.stdout.write(
-        chalk.magentaBright("\nStorage file doesn't exist, creating file\n")
+        chalk.magentaBright("\nStorage file doesn't exist, creating file\n"),
       );
       await fs.writeFile(
         "Expenses.json",
         JSON.stringify({
           Expenses: [],
           Budget: 0,
-        })
+        }),
       );
     }
   }
@@ -82,24 +82,24 @@ expenseEvents.on("list", async (type: any = "all") => {
       if (typeof type == "string") {
         if (type.toLowerCase() == "all") {
           process.stdout.write(
-            `\n${chalk.whiteBright.underline("Expenses")}\n\n`
+            `\n${chalk.whiteBright.underline("Expenses")}\n\n`,
           );
           expenses.Expenses.forEach((expense) => {
             process.stdout.write(
               `${chalk.gray(expense.id)}. ${chalk.whiteBright(
-                expense.description
+                expense.description,
               )} - ${chalk.green(
                 `$${expense.amount.toLocaleString("en-Us", {
                   currency: "USD",
-                })}`
+                })}`,
               )}
           ` +
                 `${chalk.whiteBright(
-                  `Month - ${chalk.underline(expense.month)}`
+                  `Month - ${chalk.underline(expense.month)}`,
                 )}
           ${chalk.whiteBright(
-            `Category - ${chalk.underline(expense.category)}`
-          )}\n`
+            `Category - ${chalk.underline(expense.category)}`,
+          )}\n`,
             );
           });
         } else if (type.toLowerCase() == "summary") {
@@ -108,9 +108,9 @@ expenseEvents.on("list", async (type: any = "all") => {
               "$" +
                 expenses.Expenses.reduce(
                   (accumulator, current) => (accumulator += current.amount),
-                  0
-                )
-            )}\n`
+                  0,
+                ),
+            )}\n`,
           );
         }
       } else {
@@ -121,20 +121,20 @@ expenseEvents.on("list", async (type: any = "all") => {
             case "category":
               process.stdout.write(
                 `${chalk.underline.whiteBright(
-                  `Expenses for ${argumentsPassed[1]}\n\n`
-                )}`
+                  `Expenses for ${argumentsPassed[1]}\n\n`,
+                )}`,
               );
               expenses.Expenses.forEach((expense) => {
                 if (expense.category == argumentsPassed[1]) {
                   process.stdout.write(
                     `${chalk.gray(expense.id)}. ${chalk.whiteBright(
-                      expense.description
+                      expense.description,
                     )} - ${chalk.green(
                       "$" +
                         expense.amount.toLocaleString("en-US", {
                           currency: "USD",
-                        })
-                    )}\n`
+                        }),
+                    )}\n`,
                   );
                 }
               });
@@ -145,26 +145,26 @@ expenseEvents.on("list", async (type: any = "all") => {
                   Object.entries(Months).findIndex(
                     (month) =>
                       month[0] == argumentsPassed[1] ||
-                      month[1] == argumentsPassed[1]
+                      month[1] == argumentsPassed[1],
                   )
                 ];
 
               process.stdout.write(
                 chalk.whiteBright.underline(
-                  `Expenses for month, ${argumentsPassed[1]}\n\n`
-                )
+                  `Expenses for month, ${argumentsPassed[1]}\n\n`,
+                ),
               );
               expenses.Expenses.forEach((expense) => {
                 if (expense.month == Month[0] || expense.month == Month[1]) {
                   process.stdout.write(
                     `${chalk.gray(expense.id)}. ${chalk.whiteBright(
-                      expense.description
+                      expense.description,
                     )} - ${chalk.green(
                       "$" +
                         expense.amount.toLocaleString("en-US", {
                           currency: "USD",
-                        })
-                    )}\n`
+                        }),
+                    )}\n`,
                   );
                 }
               });
@@ -172,8 +172,8 @@ expenseEvents.on("list", async (type: any = "all") => {
             default:
               process.stdout.write(
                 chalk.redBright(
-                  "Pass in either the month or category e.g. month=4 category=apple"
-                )
+                  "Pass in either the month or category e.g. month=4 category=apple",
+                ),
               );
               break;
           }
@@ -181,7 +181,7 @@ expenseEvents.on("list", async (type: any = "all") => {
       }
       let currentPrices = expenses.Expenses.reduce(
         (accum, current) => (accum += current.amount),
-        0
+        0,
       );
 
       if (currentPrices > expenses.Budget)
@@ -190,8 +190,8 @@ expenseEvents.on("list", async (type: any = "all") => {
             chalk.redBright.underline(
               "$" +
                 expenses.Budget.toLocaleString("en-US", { currency: "USD" }) +
-                " exceeded\n"
-            )
+                " exceeded\n",
+            ),
         );
       else
         process.stdout.write(
@@ -199,8 +199,8 @@ expenseEvents.on("list", async (type: any = "all") => {
             chalk.green.underline(
               "$" +
                 expenses.Budget.toLocaleString("en-US", { currency: "USD" }) +
-                "\n"
-            )
+                "\n",
+            ),
         );
     } else
       process.stdout.write(chalk.blackBright.underline("No expenses added\n"));
@@ -210,8 +210,8 @@ expenseEvents.on("list", async (type: any = "all") => {
     else if (expenses.message.includes("no such file or directory")) {
       process.stdout.write(
         chalk.magentaBright.underline(
-          "Expenses storage file does not exist, currenty being created\n"
-        )
+          "Expenses storage file does not exist, currenty being created\n",
+        ),
       );
     } else {
       process.stdout.write(expenses.message + "\n");
@@ -240,7 +240,7 @@ expenseEvents.on(
           JSON.stringify({
             Expenses: expenses.Expenses,
             Budget: expenses.Budget,
-          })
+          }),
         );
         if (changes)
           process.stdout.write(chalk.green(`Expense added, ${expenseId}`));
@@ -248,23 +248,23 @@ expenseEvents.on(
           process.stdout.write(
             chalk.redBright(
               chalk.underline("Error"),
-              "Writing to file failed please try again"
-            )
+              "Writing to file failed please try again",
+            ),
           );
       } else {
         process.stdout.write(
-          chalk.redBright("File does not exist, creating file")
+          chalk.redBright("File does not exist, creating file"),
         );
         process.stdout.write(expenses.message);
       }
     } else {
       process.stdout.write(
         chalk.red(
-          "Ensure to pass in a description and amount flag when adding, additionals being month and category"
-        )
+          "Ensure to pass in a description and amount flag when adding, additionals being month and category",
+        ),
       );
     }
-  }
+  },
 );
 expenseEvents.on(
   "update",
@@ -275,19 +275,19 @@ expenseEvents.on(
       if (currentExpenses instanceof Error == false) {
         if (!description && !category && !amount && !month) {
           process.stdout.write(
-            chalk.redBright("Provide the necessary arguments for updating")
+            chalk.redBright("Provide the necessary arguments for updating"),
           );
         } else {
           let expenseExists = currentExpenses.Expenses.findIndex(
-            (expense) => expense.id == id
+            (expense) => expense.id == id,
           );
 
           if (expenseExists != -1) {
             if (amount && Number.isNaN(Number.parseInt(amount as any)))
               process.stdout.write(
                 chalk.redBright(
-                  "Invalid amount passed in, pass in numbers for amount"
-                )
+                  "Invalid amount passed in, pass in numbers for amount",
+                ),
               );
             else {
               let updatedExpenses = currentExpenses.Expenses.map((expense) => {
@@ -310,17 +310,17 @@ expenseEvents.on(
                 JSON.stringify({
                   Expenses: updatedExpenses,
                   Budget: currentExpenses.Budget,
-                })
+                }),
               );
               if (update)
                 process.stdout.write(
-                  chalk.green("Updated" + ` ${id} ` + "successfully")
+                  chalk.green("Updated" + ` ${id} ` + "successfully"),
                 );
               else process.stdout.write("Error");
             }
           } else
             process.stdout.write(
-              chalk.redBright("Expense of id, " + id + " does not exist")
+              chalk.redBright("Expense of id, " + id + " does not exist"),
             );
         }
       } else
@@ -330,10 +330,10 @@ expenseEvents.on(
       process.stdout.write(
         chalk.red(
           chalk.underline("Error:") +
-            "Ensure to provide the expense id and valid arguments to update i.e. id=1 desc=something amount=35"
-        )
+            "Ensure to provide the expense id and valid arguments to update i.e. id=1 desc=something amount=35",
+        ),
       );
-  }
+  },
 );
 expenseEvents.on("set", async (budget: number) => {
   let expenses = await readExpenses();
@@ -348,7 +348,7 @@ expenseEvents.on("set", async (budget: number) => {
       process.stdout.write(chalk.redBright("Error occured please try again"));
   } else
     process.stdout.write(
-      chalk.magentaBright("File does not exist, creating now.")
+      chalk.magentaBright("File does not exist, creating now."),
     );
 });
 expenseEvents.on("change", async (budget: number) => {
@@ -365,7 +365,7 @@ expenseEvents.on("change", async (budget: number) => {
       process.stdout.write(chalk.redBright("Error occured please try again"));
   } else
     process.stdout.write(
-      chalk.magentaBright("File does not exist, creating now.")
+      chalk.magentaBright("File does not exist, creating now."),
     );
 });
 expenseEvents.on("delete", async (id: number) => {
@@ -374,14 +374,14 @@ expenseEvents.on("delete", async (id: number) => {
 
     if (expenses instanceof Error) {
       process.stdout.write(
-        chalk.redBright("Error: Expenses file does not exist")
+        chalk.redBright("Error: Expenses file does not exist"),
       );
     } else {
       const exists = expenses.Expenses.findIndex((expense) => expense.id == id);
 
       if (exists != -1) {
         const filteredExpenses = expenses.Expenses.filter(
-            (expense) => expense.id != id
+            (expense) => expense.id != id,
           ).map((expense, index) => {
             return { ...expense, id: index + 1 };
           }),
@@ -389,7 +389,7 @@ expenseEvents.on("delete", async (id: number) => {
             JSON.stringify({
               Expenses: filteredExpenses,
               Budget: expenses.Budget,
-            })
+            }),
           );
 
         if (updateExpenses) process.stdout.write(chalk.blue("Deleted " + id));
@@ -397,13 +397,13 @@ expenseEvents.on("delete", async (id: number) => {
       } else
         process.stdout.write(
           chalk.redBright(
-            "Error: " + "Expense of id " + id + " does not exist\n"
-          )
+            "Error: " + "Expense of id " + id + " does not exist\n",
+          ),
         );
     }
   } else
     process.stdout.write(
-      chalk.red("Pass in the id of the expense to complete the operation")
+      chalk.red("Pass in the id of the expense to complete the operation"),
     );
 });
 expenseEvents.on("export", async () => {
@@ -412,27 +412,27 @@ expenseEvents.on("export", async () => {
   if (expenses instanceof Error == false) {
     await fs.writeFile(
       path.join(__dirname, "Expenses.csv"),
-      `Id,Description,Category,Month,Amount\n`
+      `Id,Description,Category,Month,Amount\n`,
     );
 
     for (let index = 0; index < expenses.Expenses.length; index++) {
       let currentExpense = expenses.Expenses[index];
       await fs.appendFile(
         path.join(__dirname, "Expenses.csv"),
-        `${currentExpense.id},${currentExpense.description},${currentExpense.category},${currentExpense.month},${currentExpense.amount}\n`
+        `${currentExpense.id},${currentExpense.description},${currentExpense.category},${currentExpense.month},${currentExpense.amount}\n`,
       );
     }
 
     await fs.writeFile(
       path.join(__dirname, "Expenses.csv"),
       `\nBudget\n$${expenses.Budget}\n`,
-      { flag: "a" }
+      { flag: "a" },
     );
 
     process.stdout.write(chalk.green.underline("Exported successfully"));
   } else
     process.stdout.write(
-      "\n" + chalk.red(chalk.underline("Error") + "File does not exist")
+      "\n" + chalk.red(chalk.underline("Error") + "File does not exist"),
     );
 });
 
@@ -453,8 +453,8 @@ if (commands[0]) {
       } else
         process.stdout.write(
           chalk.red(
-            "Provide extra arguments i.e. description, amount, category and month to continue(category and month can be nullible"
-          )
+            "Provide extra arguments i.e. description, amount, category and month to continue(category and month can be nullible",
+          ),
         );
       break;
     case "list":
@@ -480,8 +480,8 @@ if (commands[0]) {
       } else
         process.stdout.write(
           chalk.red(
-            "Provide extra arguments for update e.g. id(compulsory), description or amount or category or month"
-          )
+            "Provide extra arguments for update e.g. id(compulsory), description or amount or category or month",
+          ),
         );
       break;
     case "delete":
@@ -496,13 +496,13 @@ if (commands[0]) {
         else if (commands[1].includes("update"))
           expenseEvents.emit(
             "change",
-            Number.parseInt(commands[1].split("=")[1])
+            Number.parseInt(commands[1].split("=")[1]),
           );
         else
           process.stdout.write(
             chalk.cyan(
-              "Budget commands are either set or update e.g. Budget update=100"
-            )
+              "Budget commands are either set or update e.g. Budget update=100",
+            ),
           );
       } else
         process.stdout.write(chalk.redBright("Ensure to pass in a number"));
@@ -514,8 +514,8 @@ if (commands[0]) {
     default:
       process.stdout.write(
         chalk.red(
-          "Pass in an argument to continue i.e. add --description=<text> --amount=<number>"
-        )
+          "Pass in an argument to continue i.e. add --description=<text> --amount=<number>",
+        ),
       );
       break;
   }
@@ -523,9 +523,9 @@ if (commands[0]) {
   process.stdout.write(
     chalk.whiteBright(
       chalk.underline(
-        "\nWelcome to NodeJS Expense Tracker command line application.\n"
+        "\nWelcome to NodeJS Expense Tracker command line application.\n",
       ) +
-        "Pass in the following extra arguments to continue, each is distinct use them one at a time i.e. add,list,update and delete\n\n"
-    )
+        "Pass in the following extra arguments to continue, each is distinct use them one at a time i.e. add,list,update and delete\n\n",
+    ),
   );
 }

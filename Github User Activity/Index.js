@@ -1,4 +1,4 @@
-#!usr/env/node
+#!/usr/bin/env node
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -76,7 +76,7 @@ else {
                                         console.log(" - ".concat(chalk.underline(username_1), " made a ").concat(chalk.blue("pull request"), " on ").concat(chalk.underline.whiteBright(Data.repo.name)));
                                         break;
                                     case "PushEvent":
-                                        console.log(" - ".concat(chalk.underline(username_1), " made ").concat(chalk.redBright.underline(Data.payload.commits.length, Data.payload.commits.length > 1 ? "commits" : "commit"), " on ").concat(chalk.underline.whiteBright(Data.repo.name)));
+                                        console.log("- ".concat(chalk.underline(username_1), " made a ").concat(chalk.green("push event"), " on repo ").concat(chalk.underline.whiteBright(Data.repo.name)));
                                         break;
                                     case "CreateEvent":
                                         console.log(" - ".concat(chalk.underline(username_1), " made a ").concat(chalk.underline.greenBright("fork"), " on ").concat(chalk.underline.whiteBright(Data.repo.name)));
@@ -129,3 +129,6 @@ else {
     else
         console.log("Invalid argument passed in, ensure the flag, github is used as e.g. github=<username>");
 }
+process.on("uncaughtException", function (error) {
+    process.stdout.write("".concat(chalk.red("Error:"), " ").concat(chalk.grey(error.message)));
+});

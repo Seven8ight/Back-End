@@ -1,4 +1,4 @@
-#!usr/env/node
+#!/usr/bin/env node
 import { ClientRequest, IncomingMessage } from "http";
 import * as https from "https";
 import * as chalk from "chalk";
@@ -13,7 +13,11 @@ type Data = {
     url: string;
   };
   payload: {
-    commits: [];
+    repository_id: number;
+    push_id: number;
+    ref: string;
+    head: string;
+    before: string;
   };
   public: boolean;
   created_at: string;
@@ -55,75 +59,70 @@ if (process.argv.length <= 2) {
                   case "PullRequestEvent":
                     console.log(
                       ` - ${chalk.underline(username)} made a ${chalk.blue(
-                        "pull request"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "pull request",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "PushEvent":
                     console.log(
-                      ` - ${chalk.underline(
-                        username
-                      )} made ${chalk.redBright.underline(
-                        Data.payload.commits.length,
-                        Data.payload.commits.length > 1 ? "commits" : "commit"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                      `- ${chalk.underline(username)} made a ${chalk.green("push event")} on repo ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "CreateEvent":
                     console.log(
                       ` - ${chalk.underline(
-                        username
+                        username,
                       )} made a ${chalk.underline.greenBright(
-                        "fork"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "fork",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "IssueCommentEvent":
                     console.log(
                       ` - ${chalk.underline(
-                        username
+                        username,
                       )} posted an ${chalk.magentaBright(
-                        "issue"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "issue",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "IssuesEvent":
                     console.log(
                       ` - ${chalk.underline(
-                        username
+                        username,
                       )} posted some ${chalk.magentaBright(
-                        "issues"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "issues",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "PullRequestReviewEvent":
                     console.log(
                       ` - ${chalk.underline(
-                        username
+                        username,
                       )} began ${chalk.magentaBright(
-                        "reviewing"
-                      )} ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "reviewing",
+                      )} ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "ForkEvent":
                     console.log(
                       ` - ${username} created a ${chalk.cyanBright(
-                        "fork"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "fork",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   case "WatchEvent":
                     console.log(
                       ` - ${username} started ${chalk.blueBright(
-                        "watching"
-                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`
+                        "watching",
+                      )} on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                     break;
                   default:
                     console.log(
                       ` - ${chalk.underline(username)} made a ${
                         Data.type
-                      } on ${chalk.underline.whiteBright(Data.repo.name)}`
+                      } on ${chalk.underline.whiteBright(Data.repo.name)}`,
                     );
                 }
               });
@@ -141,26 +140,30 @@ if (process.argv.length <= 2) {
             "user-agent": `node.js`,
           },
         },
-        requestCallback
+        requestCallback,
       );
 
     githubRequest.on("error", (error) => {
       if (error.message.includes("ENOTFOUND")) {
         console.log(
           chalk.redBright.underline("No internet Connection") + ",",
-          "please reconnect to fetch data."
+          "please reconnect to fetch data.",
         );
       } else {
         console.log(
           "An error occured during the request, pleaase try again later" +
             "\n" +
-            error.message
+            error.message,
         );
       }
     });
     githubRequest.end();
   } else
     console.log(
-      "Invalid argument passed in, ensure the flag, github is used as e.g. github=<username>"
+      "Invalid argument passed in, ensure the flag, github is used as e.g. github=<username>",
     );
 }
+
+process.on("uncaughtException", (error) => {
+  process.stdout.write(`${chalk.red("Error:")} ${chalk.grey(error.message)}`);
+});

@@ -29,23 +29,23 @@ const port = process.env.PORT,
   server: http.Server = http.createServer(
     async (
       request: http.IncomingMessage,
-      response: http.ServerResponse<http.IncomingMessage>
+      response: http.ServerResponse<http.IncomingMessage>,
     ) => {
       const DB = new Database(postgres),
-        Url = url.parse(request.url as string),
+        Url = new URL(request.url as string, `http://${request.headers.host}`),
         parsedPaths = (Url.pathname as string).split("/").filter(Boolean);
 
       response.setHeader(
         "Access-Control-Allow-Origin",
-        "http://localhost:5173"
+        "http://localhost:5173",
       );
       response.setHeader(
         "Access-Control-Allow-Methods",
-        "GET,PUT,POST,PATCH,DELETE,OPTIONS"
+        "GET,PUT,POST,PATCH,DELETE,OPTIONS",
       );
       response.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-type, authorization, accept"
+        "Content-type, authorization, accept",
       );
       response.setHeader("Content-type", "application/json");
 
@@ -72,13 +72,14 @@ const port = process.env.PORT,
                     response.writeHead(500);
                     response.end(
                       jsonResponse(
-                        "Server error, please try again, table is non-existent on the server-side"
-                      )
+                        "Server error, please try again, table is non-existent on the server-side",
+                      ),
                     );
                   } else if (user == "User is non-existent") {
                     response.writeHead(404);
                     response.end(jsonResponse("User is non-existent"));
                   } else {
+                    console.log(user);
                     response.writeHead(500);
                     response.end(jsonResponse(user));
                   }
@@ -110,8 +111,8 @@ const port = process.env.PORT,
                       response.writeHead(409);
                       response.end(
                         jsonResponse(
-                          "Incomplete credentials, provide name,email and password"
-                        )
+                          "Incomplete credentials, provide name,email and password",
+                        ),
                       );
 
                       return;
@@ -124,15 +125,15 @@ const port = process.env.PORT,
                         response.writeHead(409);
                         response.end(
                           jsonResponse(
-                            "Email already exists hence user already exists"
-                          )
+                            "Email already exists hence user already exists",
+                          ),
                         );
                         return;
                       }
 
                       response.writeHead(500);
                       response.end(
-                        jsonResponse("Server error, please try again")
+                        jsonResponse("Server error, please try again"),
                       );
                       return;
                     }
@@ -166,7 +167,7 @@ const port = process.env.PORT,
                     if (!userData.email || !userData.password) {
                       response.writeHead(409);
                       response.end(
-                        jsonResponse("Incomplete credentials, passed in login")
+                        jsonResponse("Incomplete credentials, passed in login"),
                       );
                       return;
                     }
@@ -182,15 +183,15 @@ const port = process.env.PORT,
                         response.writeHead(403, "incorrrect password");
                         response.end(
                           jsonResponse(
-                            "Incorrect password passed in for the account"
-                          )
+                            "Incorrect password passed in for the account",
+                          ),
                         );
                         break;
                       default:
                         if (userLogin instanceof Error) {
                           response.writeHead(500);
                           response.end(
-                            jsonResponse("Server error, try again please")
+                            jsonResponse("Server error, try again please"),
                           );
                           return;
                         }
@@ -203,7 +204,7 @@ const port = process.env.PORT,
                     console.log(error);
                     response.writeHead(500);
                     response.end(
-                      jsonResponse("Server error, please try again")
+                      jsonResponse("Server error, please try again"),
                     );
                     return;
                   }
@@ -223,8 +224,8 @@ const port = process.env.PORT,
                   response.writeHead(404);
                   response.end(
                     jsonResponse(
-                      "Ensure to pass in user id in the url param and security key"
-                    )
+                      "Ensure to pass in user id in the url param and security key",
+                    ),
                   );
                   return;
                 }
@@ -245,7 +246,7 @@ const port = process.env.PORT,
                       const updateDetails = JSON.parse(requestBody),
                         updateProcess = await DB.updateUser(
                           (user as any).id,
-                          updateDetails
+                          updateDetails,
                         );
 
                       switch (updateProcess) {
@@ -256,13 +257,15 @@ const port = process.env.PORT,
                         case true:
                           response.writeHead(201);
                           response.end(
-                            jsonResponse("User updated successfully")
+                            jsonResponse("User updated successfully"),
                           );
                           break;
                         default:
                           response.writeHead(409);
                           response.end(
-                            jsonResponse("Invalid fields provided for updating")
+                            jsonResponse(
+                              "Invalid fields provided for updating",
+                            ),
                           );
                           break;
                       }
@@ -271,7 +274,7 @@ const port = process.env.PORT,
                       response.end(
                         JSON.stringify({
                           message: "Server error, JSON parsing incorrect",
-                        })
+                        }),
                       );
                     }
                   });
@@ -289,7 +292,7 @@ const port = process.env.PORT,
                 if (!userDId || !authId) {
                   response.writeHead(404);
                   response.end(
-                    jsonResponse("User id and auth id must be provided")
+                    jsonResponse("User id and auth id must be provided"),
                   );
                   return;
                 }
@@ -321,7 +324,7 @@ const port = process.env.PORT,
                     default:
                       response.writeHead(500);
                       response.end(
-                        jsonResponse((deletionRequest as Error).message)
+                        jsonResponse((deletionRequest as Error).message),
                       );
                       break;
                   }
@@ -345,7 +348,7 @@ const port = process.env.PORT,
                   if (!(userRefreshToken instanceof Error)) {
                     try {
                       let refreshProcess = refreshToken(
-                        (userRefreshToken as any).refreshToken
+                        (userRefreshToken as any).refreshToken,
                       );
 
                       if (typeof refreshProcess == "string") {
@@ -360,7 +363,7 @@ const port = process.env.PORT,
                       if ((error as Error).message.includes("JSON")) {
                         response.writeHead(500);
                         response.end(
-                          jsonResponse("JSON parsed is in invalid format")
+                          jsonResponse("JSON parsed is in invalid format"),
                         );
                         return;
                       }
@@ -369,21 +372,21 @@ const port = process.env.PORT,
                       response.end(
                         jsonResponse(
                           "Server error, please try again" +
-                            (error as Error).message
-                        )
+                            (error as Error).message,
+                        ),
                       );
                     }
                   } else {
                     response.writeHead(409);
                     response.end(
-                      jsonResponse("Json data passed in is invalid")
+                      jsonResponse("Json data passed in is invalid"),
                     );
                   }
                 });
               } else {
                 response.writeHead(405);
                 response.end(
-                  jsonResponse("Invalid header method, use PATCH instead")
+                  jsonResponse("Invalid header method, use PATCH instead"),
                 );
               }
               break;
@@ -391,8 +394,8 @@ const port = process.env.PORT,
               response.writeHead(404);
               response.end(
                 jsonResponse(
-                  "Route doesn't exist\n Existing routes are \n 1. register\n 2. login\n 3. Update\n 4. Delete"
-                )
+                  "Route doesn't exist\n Existing routes are \n 1. register\n 2. login\n 3. Update\n 4. Delete",
+                ),
               );
               break;
           }
@@ -439,21 +442,21 @@ const port = process.env.PORT,
 
                     const todoFinder = await DB.getTodo(
                       authId,
-                      (todoData as any).id
+                      (todoData as any).id,
                     );
 
                     if (todoFinder instanceof Error) {
                       response.writeHead(500);
                       response.end(
-                        jsonResponse("Server error, please try again")
+                        jsonResponse("Server error, please try again"),
                       );
                       return;
                     } else if (typeof todoFinder == "string") {
                       response.writeHead(403);
                       response.end(
                         jsonResponse(
-                          "User is invalid, token expired, try again"
-                        )
+                          "User is invalid, token expired, try again",
+                        ),
                       );
                       return;
                     } else if (
@@ -470,7 +473,7 @@ const port = process.env.PORT,
                     console.log(error);
                     response.writeHead(500);
                     response.end(
-                      jsonResponse("Server error occured, please try again")
+                      jsonResponse("Server error occured, please try again"),
                     );
                   }
                 });
@@ -486,20 +489,20 @@ const port = process.env.PORT,
                 todoData += data.toString();
               });
 
-              request.on("end", () => {
+              request.on("end", async () => {
                 todoData = JSON.parse(todoData);
 
-                if (!todoData.title || !todoData.description) {
+                if (!todoData.title || !todoData.content) {
                   response.writeHead(409);
                   response.end(
                     jsonResponse(
-                      "Ensure to pass in the title and description of the todo item"
-                    )
+                      "Ensure to pass in the title and todo content of the todo item",
+                    ),
                   );
                   return;
                 }
 
-                const creation = DB.createTodo(authId, todoData);
+                const creation = await DB.createTodo(authId, todoData);
 
                 if (typeof creation == "string") {
                   if (creation == "Token passed is invalid") {
@@ -509,8 +512,8 @@ const port = process.env.PORT,
                     response.writeHead(409);
                     response.end(
                       jsonResponse(
-                        "Ensure to pass in all details, userid, title and description"
-                      )
+                        "Ensure to pass in all details, userid, title and description",
+                      ),
                     );
                   }
                 } else {
@@ -546,8 +549,8 @@ const port = process.env.PORT,
                       response.writeHead(409);
                       response.end(
                         jsonResponse(
-                          "Ensure to pass in all details, userid, title and description"
-                        )
+                          "Ensure to pass in all details, userid, title and description",
+                        ),
                       );
                     }
                   } else {
@@ -559,7 +562,7 @@ const port = process.env.PORT,
               } else {
                 response.writeHead(405);
                 response.end(
-                  jsonResponse("Ensure to pass in a PUT method instead")
+                  jsonResponse("Ensure to pass in a PUT method instead"),
                 );
               }
               break;
@@ -590,13 +593,13 @@ const port = process.env.PORT,
                       console.log("Delete successful");
                       response.writeHead(204);
                       response.end(
-                        jsonResponse("Todo item deleted successfully")
+                        jsonResponse("Todo item deleted successfully"),
                       );
                       break;
                     default:
                       response.writeHead(404);
                       response.end(
-                        jsonResponse("The row does not exist in the database")
+                        jsonResponse("The row does not exist in the database"),
                       );
                       break;
                   }
@@ -620,7 +623,7 @@ const port = process.env.PORT,
           response.end(jsonResponse("Server connection successful"));
           break;
       }
-    }
+    },
   );
 
 server.listen(port || 3000, async () => {

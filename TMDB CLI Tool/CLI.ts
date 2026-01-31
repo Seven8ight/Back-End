@@ -85,71 +85,71 @@ Events.on("Display movie list", (List: Response, movieType: MovieType) => {
       minDate = new Date(List.dates.minimum);
 
       process.stdout.write(
-        `\n${chalk.underline.green.bold(movieTypeString)}  `
+        `\n${chalk.underline.green.bold(movieTypeString)}  `,
       );
 
       process.stdout.write(
         `  Between ${chalk.green(
           `${minDate.getDate()}-${
             minDate.getMonth() + 1
-          }-${minDate.getFullYear()}`
+          }-${minDate.getFullYear()}`,
         )} and ${chalk.green(
           `${maxDate.getDate()}-${
             maxDate.getMonth() + 1
-          }-${maxDate.getFullYear()}`
-        )}\n\n`
+          }-${maxDate.getFullYear()}`,
+        )}\n\n`,
       );
     }
   } else
     process.stdout.write(
-      `\n${chalk.underline.green.bold(movieTypeString)}\n\n`
+      `\n${chalk.underline.green.bold(movieTypeString)}\n\n`,
     );
 
   List.results.forEach((movie) => {
     process.stdout.write(
       `${chalk.grey("Title")} - ${chalk.whiteBright.underline(
-        `${movie.title}`
-      )}\n`
+        `${movie.title}`,
+      )}\n`,
     );
     process.stdout.write(
       `${chalk.grey("Original Title")} - ${chalk.whiteBright.underline(
-        `${movie.title}`
-      )}\n`
+        `${movie.title}`,
+      )}\n`,
     );
     process.stdout.write(
       `${chalk.grey("Original Languages")} - ${chalk.whiteBright.underline(
-        `${movie.original_language}`
-      )}\n`
+        `${movie.original_language}`,
+      )}\n`,
     );
     process.stdout.write(
       `${chalk.white("Adult")} - ${chalk.whiteBright.underline(
-        `${movie.adult ? "Yes" : "No"}\n`
-      )}`
+        `${movie.adult ? "Yes" : "No"}\n`,
+      )}`,
     );
     process.stdout.write(
       `\n ${chalk.cyan("Overview")} - ${chalk.whiteBright(
-        `${movie.overview}`
-      )}\n\n`
+        `${movie.overview}`,
+      )}\n\n`,
     );
     process.stdout.write(
       `${chalk.grey("Voter count")} - ${chalk.whiteBright(
-        `${movie.vote_count}\n`
-      )}`
+        `${movie.vote_count}\n`,
+      )}`,
     );
     process.stdout.write(
       `${chalk.grey("Rating")} - ${
         movie.vote_average >= 7
           ? chalk.greenBright.underline(`${movie.vote_average}`)
           : movie.vote_average >= 5
-          ? chalk.yellowBright.underline(`${movie.vote_average}`)
-          : movie.vote_average == 0 && movie.vote_count <= 0
-          ? chalk.redBright.underline("Not rated")
-          : chalk.redBright.underline(`${movie.vote_average}`)
-      }\n`
+            ? chalk.yellowBright.underline(`${movie.vote_average}`)
+            : movie.vote_average == 0 && movie.vote_count <= 0
+              ? chalk.redBright.underline("Not rated")
+              : chalk.redBright.underline(`${movie.vote_average}`)
+      }\n`,
     );
 
     process.stdout.write(
-      `------------------------------------------------------------------------------\n\n`
+      `------------------------------------------------------------------------------\n\n`,
     );
   });
 });
@@ -177,7 +177,7 @@ Events.on("Fetch movie list", async (url: string) => {
 
             Events.emit("Display movie list", JSON.parse(movieList), movieType);
           });
-        }
+        },
       );
 
       fetchMovie.on("finish", () => {
@@ -187,8 +187,8 @@ Events.on("Fetch movie list", async (url: string) => {
       fetchMovie.on("error", (error: Error) => {
         process.stdout.write(
           `${chalk.redBright.underline("Error:")} - ${chalk.red.underline(
-            `${error.message}`
-          )}\n`
+            `${error.message}`,
+          )}\n`,
         );
       });
 
@@ -196,15 +196,15 @@ Events.on("Fetch movie list", async (url: string) => {
     } catch (error) {
       process.stdout.write(
         `${chalk.redBright.underline("Error")} - ${chalk.red.underline(
-          `${(error as Error).message}`
-        )}\n`
+          `${(error as Error).message}`,
+        )}\n`,
       );
     }
   } else
     process.stdout.write(
       `${chalk.redBright.underline("Error")} - ${chalk.whiteBright.underline(
-        "Invalid movie category put in, try either popular, top, upcoming or playing"
-      )}\n`
+        "Invalid movie category put in, try either popular, top, upcoming or playing",
+      )}\n`,
     );
 });
 
@@ -237,15 +237,15 @@ Events.emit("Fetch movie list", movieUrl);
 process.on("uncaughtException", (error: Error) =>
   process.stdout.write(
     `${chalk.redBright.underline("Error:")} - ${chalk.red.underline(
-      `${error.message}`
-    )}\n`
-  )
+      `${error.message}`,
+    )}\n`,
+  ),
 );
 
 process.on("unhandledRejection", (error: Error) =>
   process.stdout.write(
     `${chalk.redBright.underline("Error:")} - ${chalk.red.underline(
-      `${error.message}`
-    )}\n`
-  )
+      `${error.message}`,
+    )}\n`,
+  ),
 );

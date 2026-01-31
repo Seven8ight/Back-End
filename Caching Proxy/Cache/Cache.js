@@ -44,7 +44,7 @@ var CacheDB = /** @class */ (function () {
     }
     CacheDB.prototype.cacheFileExistence = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var file, error_1;
+            var error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -53,8 +53,7 @@ var CacheDB = /** @class */ (function () {
                                 encoding: "utf-8",
                             })];
                     case 1:
-                        file = _a.sent();
-                        JSON.parse(file);
+                        _a.sent();
                         return [2 /*return*/, true];
                     case 2:
                         error_1 = _a.sent();
@@ -143,14 +142,21 @@ var CacheDB = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!(url.length > 0)) return [3 /*break*/, 8];
+                        if (!(url.length > 0)) return [3 /*break*/, 11];
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 7]);
-                        return [4 /*yield*/, fs.readFile(path.join(__dirname, "Cache.json"), {
-                                encoding: "utf-8",
-                            })];
+                        _a.trys.push([1, 6, , 10]);
+                        return [4 /*yield*/, this.cacheFileExistence()];
                     case 2:
+                        if (!((_a.sent()) == false)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.createCacheFile()];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/, null];
+                    case 4: return [4 /*yield*/, fs.readFile(path.join(__dirname, "Cache.json"), {
+                            encoding: "utf-8",
+                        })];
+                    case 5:
                         contents = _a.sent(), cache = JSON.parse(contents);
                         if (cache.Cache) {
                             cacheFind = cache.Cache.find(function (cache) { return cache.url == url; });
@@ -160,24 +166,24 @@ var CacheDB = /** @class */ (function () {
                         }
                         else
                             return [2 /*return*/, null];
-                        return [3 /*break*/, 7];
-                    case 3:
+                        return [3 /*break*/, 10];
+                    case 6:
                         error_3 = _a.sent();
-                        if (!(error_3 instanceof Error)) return [3 /*break*/, 6];
-                        if (!error_3.message.includes("not exist")) return [3 /*break*/, 5];
+                        if (!(error_3 instanceof Error)) return [3 /*break*/, 9];
+                        if (!error_3.message.includes("not exist")) return [3 /*break*/, 8];
                         return [4 /*yield*/, this.createCacheFile()];
-                    case 4:
+                    case 7:
                         _a.sent();
-                        return [3 /*break*/, 6];
-                    case 5:
-                        process.stdout.write("".concat(error_3.message));
-                        _a.label = 6;
-                    case 6: return [2 /*return*/, null];
-                    case 7: return [3 /*break*/, 9];
+                        return [3 /*break*/, 9];
                     case 8:
+                        process.stdout.write("".concat(error_3.message));
+                        _a.label = 9;
+                    case 9: return [2 /*return*/, null];
+                    case 10: return [3 /*break*/, 12];
+                    case 11:
                         process.stdout.write("URL length is invalid");
                         return [2 /*return*/, null];
-                    case 9: return [2 /*return*/];
+                    case 12: return [2 /*return*/];
                 }
             });
         });

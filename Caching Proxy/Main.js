@@ -54,22 +54,22 @@ var url_1 = require("url");
 var Cache_1 = require("./Cache/Cache");
 var args = process.argv.slice(2), Cachedb = new Cache_1.CacheDB();
 var options = {};
-args.forEach(function (arg, index, arr) {
-    if (!arg.includes("clear-cache")) {
-        if (arg.includes("--") && !arr[index + 1].includes("--"))
-            options[arg.replace(/-+/g, "")] = arr[index + 1];
-    }
-    else
+args.forEach(function (arg, _, __) {
+    if (arg.includes("clear-cache")) {
         options["clear_cache"] = "yes";
+    }
+    else if (arg.startsWith("--")) {
+        var args_1 = arg.split("="), option = args_1[0].replace(/^-+/g, ""), value = args_1[1];
+        options[option] = value;
+    }
 });
 if (options.port && options.origin) {
     var server = http.createServer(function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
-        var requestUrl, requestParams, params, urlOptions, networkRequest, url_2, cacheHit;
+        var requestUrl, targetUrl, requestParams, params, urlOptions, networkRequest, cacheHit;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!request.url) return [3 /*break*/, 6];
-                    requestUrl = new url_1.URL(request.url, "http://".concat(request.headers.host)), requestParams = requestUrl === null || requestUrl === void 0 ? void 0 : requestUrl.pathname, params = requestParams && requestParams.split("/").filter(Boolean);
+                    requestUrl = new url_1.URL(request.url, "http://".concat(request.headers.host)), targetUrl = new url_1.URL(requestUrl.pathname + requestUrl.search, options.origin).toString(), requestParams = requestUrl === null || requestUrl === void 0 ? void 0 : requestUrl.pathname, params = requestParams && requestParams.split("/").filter(Boolean);
                     if (!Array.isArray(params)) return [3 /*break*/, 4];
                     if (!(params.length > 0)) return [3 /*break*/, 2];
                     urlOptions = {
@@ -77,13 +77,13 @@ if (options.port && options.origin) {
                             accept: "application/json",
                         },
                     };
-                    networkRequest = void 0, url_2 = "".concat(options.origin, "/").concat(params.join("/"));
-                    return [4 /*yield*/, Cachedb.retrieveResponse(url_2)];
+                    networkRequest = void 0;
+                    return [4 /*yield*/, Cachedb.retrieveResponse(targetUrl)];
                 case 1:
                     cacheHit = _a.sent();
                     if (cacheHit == null) {
                         if (options.origin.includes("https")) {
-                            networkRequest = https.request(url_2, urlOptions, function (res) {
+                            networkRequest = https.request(targetUrl, urlOptions, function (res) {
                                 var responseData = "";
                                 res.on("error", function (error) {
                                     response.writeHead(500);
@@ -99,7 +99,7 @@ if (options.port && options.origin) {
                                             case 0:
                                                 _a.trys.push([0, 2, , 3]);
                                                 jsonResponseData = JSON.parse(responseData);
-                                                return [4 /*yield*/, Cachedb.cacheResponse(url_2, res.headers, jsonResponseData)];
+                                                return [4 /*yield*/, Cachedb.cacheResponse(targetUrl, res.headers, jsonResponseData)];
                                             case 1:
                                                 cacheSave = _a.sent();
                                                 response.writeHead(200);
@@ -119,7 +119,7 @@ if (options.port && options.origin) {
                             });
                         }
                         else {
-                            networkRequest = http.request(url_2, urlOptions, function (res) {
+                            networkRequest = http.request(targetUrl, urlOptions, function (res) {
                                 var responseData = "";
                                 res.on("error", function (error) {
                                     response.writeHead(500);
@@ -135,7 +135,7 @@ if (options.port && options.origin) {
                                             case 0:
                                                 _a.trys.push([0, 2, , 3]);
                                                 jsonResponseData = JSON.parse(responseData);
-                                                return [4 /*yield*/, Cachedb.cacheResponse(url_2, res.headers, jsonResponseData)];
+                                                return [4 /*yield*/, Cachedb.cacheResponse(targetUrl, res.headers, jsonResponseData)];
                                             case 1:
                                                 cacheSave = _a.sent();
                                                 response.writeHead(200);
@@ -175,19 +175,12 @@ if (options.port && options.origin) {
                         Error: "Invalid route parameters passed in\n",
                     }));
                     _a.label = 5;
-                case 5: return [3 /*break*/, 7];
-                case 6:
-                    response.writeHead(500);
-                    response.end(JSON.stringify({
-                        Error: "Request url invalid, server error, kindly try again\n",
-                    }));
-                    _a.label = 7;
-                case 7: return [2 /*return*/];
+                case 5: return [2 /*return*/];
             }
         });
     }); });
     server.listen(options.port, function () {
-        return process.stdout.write("Server started at port: ".concat(options.port));
+        return process.stdout.write("Server started at port: ".concat(options.port, "\n"));
     });
 }
 else if (options.clear_cache)

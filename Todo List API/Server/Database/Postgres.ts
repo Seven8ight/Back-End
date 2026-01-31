@@ -37,12 +37,12 @@ export class Database {
   }
 
   async registration(
-    details: UserDetails
+    details: UserDetails,
   ): Promise<string | SecurityCredentials> {
     if ((await this.tableExists("user")) == false) {
       try {
         await this.Client.query(
-          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);"
+          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);",
         );
       } catch (error) {
         return (error as Error).message;
@@ -51,16 +51,16 @@ export class Database {
 
     try {
       await this.Client.query(
-        "INSERT INTO users(name,email,password) VALUES($1,$2,$3);",
-        [details.name, details.email, details.password]
+        "INSERT INTO users(username,email,password) VALUES($1,$2,$3);",
+        [details.name, details.email, details.password],
       );
-      console.log("Here at token");
+
       return generateToken(
         (
           await this.Client.query("SELECT * FROM users WHERE email=$1", [
             details.email,
           ])
-        ).rows[0]
+        ).rows[0],
       );
     } catch (error) {
       return (error as Error).message;
@@ -71,7 +71,7 @@ export class Database {
     if ((await this.tableExists("user")) == false)
       try {
         await this.Client.query(
-          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);"
+          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);",
         );
         return "User table non-existent";
       } catch (error) {
@@ -90,7 +90,7 @@ export class Database {
       if (user.id) {
         let fetchUser = await this.Client.query(
           "SELECT * FROM users WHERE id::text=$1",
-          [user.id]
+          [user.id],
         );
 
         if (fetchUser.rowCount && fetchUser.rows.length > 0)
@@ -103,12 +103,12 @@ export class Database {
   }
 
   async login(
-    details: Omit<UserDetails, "name">
+    details: Omit<UserDetails, "name">,
   ): Promise<UserDetails | string | SecurityCredentials> {
     if ((await this.tableExists("user")) == false)
       try {
         await this.Client.query(
-          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), name VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);"
+          "CREATE TABLE users(id UUID DEFAULT uuid_generate_v4(), username VARCHAR(100), email VARCHAR(100) UNIQUE, password TEXT);",
         );
         return "User table non-existent";
       } catch (error) {
@@ -117,7 +117,7 @@ export class Database {
     else {
       let userFinder: QueryResult<any> = await this.Client.query(
         "SELECT * FROM users WHERE email=$1",
-        [details.email]
+        [details.email],
       );
 
       if (userFinder.rows.length == 0) return "User does not exist";
@@ -128,7 +128,7 @@ export class Database {
               await this.Client.query("SELECT * FROM users WHERE email=$1", [
                 details.email,
               ])
-            ).rows[0]
+            ).rows[0],
           );
         else return "Incorrect password";
       }
@@ -137,14 +137,14 @@ export class Database {
 
   async updateUser(
     id: string,
-    newDetails: Partial<Omit<UserDetails, "id">>
+    newDetails: Partial<Omit<UserDetails, "id">>,
   ): Promise<boolean | Error | string> {
     try {
       delete (newDetails as unknown as any).id;
 
       let userChecker = await this.Client.query(
         `SELECT * FROM users where id::text=$1`,
-        [id]
+        [id],
       );
 
       if (userChecker.rowCount && userChecker.rowCount <= 0)
@@ -154,7 +154,7 @@ export class Database {
         if (value.length > 0)
           await this.Client.query(
             `UPDATE users SET ${key}=$1 WHERE id::text=$2`,
-            [value, id]
+            [value, id],
           );
       }
 
@@ -169,7 +169,7 @@ export class Database {
     try {
       let userChecker = await this.Client.query(
         `SELECT * FROM users where id::text=$1;`,
-        [id]
+        [id],
       );
 
       if (userChecker.rowCount && userChecker.rowCount <= 0) {
@@ -187,7 +187,7 @@ export class Database {
   //Todo lists
   async createTodo(
     token: string,
-    { title, description }: { title: string; description: string }
+    { title, content }: { title: string; content: string },
   ): Promise<boolean | string> {
     const user = verifyUser(token);
 
@@ -195,15 +195,15 @@ export class Database {
 
     if (!(await this.tableExists("todos")))
       await this.Client.query(
-        "CREATE TABLE todos (id uuid DEFAULT uuid_generate_v4(),userId uuid REFERENCES users(id),title TEXT, description TEXT);"
+        "CREATE TABLE todos (id uuid DEFAULT uuid_generate_v4(),userId uuid REFERENCES users(id),title TEXT, description TEXT);",
       );
 
-    if (title.length > 0 && description.length > 0) {
+    if (title.length > 0 && content.length > 0) {
       // const decodedUser: UserDetails = JSON.parse(user as string);
 
       await this.Client.query(
-        "INSERT INTO todos(title,description,userId) VALUES($1,$2,$3);",
-        [title, description, (user as any).id]
+        "INSERT INTO todos(title,content,user_id) VALUES($1,$2,$3);",
+        [title, content, (user as any).id],
       );
     } else return "incomplete credentials";
 
@@ -212,7 +212,7 @@ export class Database {
 
   async getTodo(
     token: string,
-    todoId: string
+    todoId: string,
   ): Promise<string | QueryResult | Error> {
     try {
       const user = verifyUser(token);
@@ -222,7 +222,7 @@ export class Database {
 
       const todoFinder = this.Client.query(
         "SELECT * FROM todos WHERE id::text=$1",
-        [todoId]
+        [todoId],
       );
 
       return todoFinder;
@@ -240,8 +240,8 @@ export class Database {
       if (!(await this.tableExists("todos"))) return "Table non existent";
 
       return await this.Client.query(
-        `SELECT * FROM todos WHERE userId::text=$1`,
-        [(user as UserDetails).id]
+        `SELECT * FROM todos WHERE user_id::text=$1`,
+        [(user as UserDetails).id],
       );
     } catch (error) {
       return (error as Error).message;
@@ -254,7 +254,7 @@ export class Database {
       id,
       title,
       description,
-    }: { id: string; title?: string; description?: string }
+    }: { id: string; title?: string; description?: string },
   ): Promise<boolean | string> {
     const user = verifyUser(token);
 
@@ -266,7 +266,7 @@ export class Database {
       if (value && (value as string).length > 0)
         await this.Client.query(
           `UPDATE todos SET ${key}=$1 WHERE id::text=$2`,
-          [value, id]
+          [value, id],
         );
     }
 
@@ -290,8 +290,8 @@ export class Database {
       if (!(await this.tableExists("todos"))) return "Table non-existent";
 
       let deletion = await this.Client.query(
-        `DELETE FROM todos where id::text=$1 AND userid::text=$2;`,
-        [todoId, (user as UserDetails).id]
+        `DELETE FROM todos where id::text=$1 AND user_id::text=$2;`,
+        [todoId, (user as UserDetails).id],
       );
 
       if (deletion.rowCount === 0) return "Row does not exist";

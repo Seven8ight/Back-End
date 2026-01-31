@@ -147,7 +147,7 @@ const Login = ({
                     "Content-type": "application/json",
                   },
                   body: JSON.stringify(details),
-                }
+                },
               ),
               accountResponse = await accountRequest.json();
 

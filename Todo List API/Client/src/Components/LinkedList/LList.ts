@@ -2,7 +2,7 @@ export type todoItem = {
   id: string;
   userId: string;
   title: string;
-  description: string;
+  content: string;
   status: "Complete" | "Incomplete";
 };
 
@@ -91,7 +91,7 @@ export class DLlist {
   updateTodo({
     id,
     title,
-    description,
+    content,
     status,
   }: Partial<Omit<todoItem, "userId">>) {
     if (this.isEmpty()) return false;
@@ -109,12 +109,12 @@ export class DLlist {
 
       if (currentNode.data.id != id) return "Todo item does not exist";
 
-      for (let [key, value] of Object.entries({ title, description, status })) {
+      for (let [key, value] of Object.entries({ title, content, status })) {
         if (value && value.length >= 0) {
           if (key == "status" && (value == "Complete" || value == "Incomplete"))
             currentNode.data.status = value;
           else if (key === "title" || key === "description")
-            currentNode.data[key as "title" | "description"] = value;
+            currentNode.data[key as "title" | "content"] = value;
         }
       }
     }

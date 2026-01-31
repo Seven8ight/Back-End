@@ -16,14 +16,14 @@ export const generateToken = (details: Partial<UserDetails>) => {
         process.env.JWT_ACCESS_TOKEN as string,
         {
           expiresIn: "900s",
-        }
+        },
       ),
       refreshToken = jwt.sign(
         details,
         process.env.JWT_REFRESH_TOKEN as string,
         {
           expiresIn: "2592000s",
-        }
+        },
       );
 
     return { accessToken, refreshToken };
@@ -36,18 +36,18 @@ export const generateToken = (details: Partial<UserDetails>) => {
     }
   },
   refreshToken = (
-    token: string
+    token: string,
   ): string | Omit<SecurityCredentials, "refreshToken"> => {
     const verification = jwt.verify(
       token,
-      process.env.JWT_REFRESH_TOKEN as string
+      process.env.JWT_REFRESH_TOKEN as string,
     );
 
     if (!verification) return "Invalid token";
 
     const accessToken = jwt.sign(
       verification,
-      process.env.JWT_ACCESS_TOKEN as string
+      process.env.JWT_ACCESS_TOKEN as string,
     );
 
     return {

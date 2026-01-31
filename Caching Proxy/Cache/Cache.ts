@@ -24,11 +24,9 @@ interface CacheInterface {
 export class CacheDB implements CacheInterface {
   async cacheFileExistence(): Promise<boolean> {
     try {
-      let file = await fs.readFile(path.join(__dirname, "Cache.json"), {
+      await fs.readFile(path.join(__dirname, "Cache.json"), {
         encoding: "utf-8",
       });
-
-      JSON.parse(file);
 
       return true;
     } catch (error) {
@@ -47,14 +45,14 @@ export class CacheDB implements CacheInterface {
       {
         encoding: "utf-8",
         flag: "w",
-      }
+      },
     );
   }
 
   async cacheResponse(
     url: string,
     headers: any,
-    Response: any
+    Response: any,
   ): Promise<boolean> {
     if (url.length > 0 && Response != null)
       try {
@@ -79,7 +77,7 @@ export class CacheDB implements CacheInterface {
           JSON.stringify(contentsParsed),
           {
             encoding: "utf-8",
-          }
+          },
         );
 
         return true;
@@ -91,7 +89,7 @@ export class CacheDB implements CacheInterface {
       }
     else {
       process.stdout.write(
-        "Error in caching, url may be null or response is null"
+        "Error in caching, url may be null or response is null",
       );
       return false;
     }
@@ -100,6 +98,11 @@ export class CacheDB implements CacheInterface {
   async retrieveResponse(url: string): Promise<CacheItem | null> {
     if (url.length > 0)
       try {
+        if ((await this.cacheFileExistence()) == false) {
+          await this.createCacheFile();
+          return null;
+        }
+
         const contents = await fs.readFile(path.join(__dirname, "Cache.json"), {
             encoding: "utf-8",
           }),
@@ -132,7 +135,7 @@ export class CacheDB implements CacheInterface {
         JSON.stringify({
           Cache: [],
         }),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
       );
 
       return true;

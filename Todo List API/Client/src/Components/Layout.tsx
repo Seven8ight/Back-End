@@ -7,7 +7,7 @@ export type Todos = {
   id: string;
   userId: string;
   title: string;
-  description: string;
+  content: string;
 };
 
 const animations = {
@@ -23,9 +23,9 @@ const Layout = (): React.ReactNode => {
     [refreshToken, setRToken] = useState<string | null>(null),
     [error, setError] = useState<boolean>(false),
     [errorMsg, setErrorMsg] = useState<string>(""),
-    [todoInput, setInput] = useState<{ title: string; description: string }>({
+    [todoInput, setInput] = useState<{ title: string; content: string }>({
       title: "",
-      description: "",
+      content: "",
     }),
     [responseMsg, setMsg] = useState<string>(""),
     [todoItems, setItems] = useState<DLlist>(new DLlist());
@@ -53,7 +53,7 @@ const Layout = (): React.ReactNode => {
                   "Content-type": "application/json",
                   Authorization: `${accessToken}`,
                 },
-              }
+              },
             ),
             todoResponse: Todos[] | any = await todoRequest.json();
 
@@ -71,7 +71,7 @@ const Layout = (): React.ReactNode => {
                       body: JSON.stringify({
                         refreshToken,
                       }),
-                    }
+                    },
                   ),
                   refreshTokenResponse = await refreshTokenRequest.json();
 
@@ -126,7 +126,7 @@ const Layout = (): React.ReactNode => {
               "Content-type": "application/json",
               Authorization: `${accessToken}`,
             },
-          }
+          },
         ),
         todoResponse: Todos[] | any = await todoRequest.json();
 
@@ -150,7 +150,7 @@ const Layout = (): React.ReactNode => {
                   "Content-type": "application/json",
                   Authorization: `${accessToken}`,
                 },
-              }
+              },
             ),
             userProfileResponse = await userProfileRequest.json();
 
@@ -164,10 +164,11 @@ const Layout = (): React.ReactNode => {
           }, 2000);
         }
       }
+      // } else navigation("/auth");
     },
     handleAddTask = async () => {
       try {
-        if (todoInput.title.length > 0 && todoInput.description.length > 0) {
+        if (todoInput.title.length > 0 && todoInput.content.length > 0) {
           let addTaskRequest = await fetch("http://localhost:3000/todos/add", {
               method: "POST",
               headers: {
@@ -194,7 +195,7 @@ const Layout = (): React.ReactNode => {
 
           setInput({
             title: "",
-            description: "",
+            content: "",
           });
         } else setMsg("Incomplete fields, ensure all fields are having values");
       } catch (error) {
@@ -279,10 +280,10 @@ const Layout = (): React.ReactNode => {
             type="text"
             required
             placeholder="description"
-            value={todoInput.description}
+            value={todoInput.content}
             onChange={(event) =>
               setInput((current) => {
-                return { ...current, description: event.target.value };
+                return { ...current, content: event.target.value };
               })
             }
           />
@@ -316,7 +317,7 @@ const Layout = (): React.ReactNode => {
                     todo.status == "Complete" ? "line-through" : "none",
                 }}
               >
-                {todo.description}
+                {todo.content}
               </p>
             </div>
             <div id="status">
@@ -327,7 +328,7 @@ const Layout = (): React.ReactNode => {
                 onClick={() =>
                   updateTaskStatus(
                     todo.id,
-                    todo.status == "Complete" ? "Incomplete" : "Complete"
+                    todo.status == "Complete" ? "Incomplete" : "Complete",
                   )
                 }
               >

@@ -30,11 +30,11 @@ const mimeTypes: Record<string, string> = {
   ".js": "application/javascript",
 };
 
-const port = process.env.PORT,
+const port = process.env.PORT || 3000,
   Server = http.createServer(
     async (
       request: http.IncomingMessage,
-      response: http.ServerResponse<http.IncomingMessage>
+      response: http.ServerResponse<http.IncomingMessage>,
     ) => {
       let filePath = "";
 
@@ -179,11 +179,11 @@ const port = process.env.PORT,
               Result: Number.parseInt(result.toPrecision(3)),
               Converted: converted,
               Unit: convertData.to,
-            })
+            }),
           );
         });
       }
-    }
+    },
   );
 
 Server.listen(port, () => {

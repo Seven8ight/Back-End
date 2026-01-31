@@ -10,10 +10,22 @@ Created project from roadmap.sh backend projects
     npm i -g
 ```
 
-2. To run it on the terminal ensure to type in,
+2. Build typescript files
+
+```bash
+    npm run build
+```
+
+3. Link the CLI Application(may require elevation of user priviledges on linux/mac platform)
+
+```bash
+    npm link
+```
+
+4. To run it on the terminal ensure to type in,
 
 ```bash
     Github username=<username here>
 ```
 
-3. Complete setup
+5. Execute

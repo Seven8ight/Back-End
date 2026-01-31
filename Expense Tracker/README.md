@@ -10,13 +10,19 @@ Originated from roadmap.sh backend projects
     npm i -g
 ```
 
-2. Link the CLI application
+2. Build all typescript files
+
+```bash
+    npm run build
+```
+
+3. Link the CLI application
 
 ```bash
     npm link
 ```
 
-3. Execute
+4. Execute
 
 ```bash
     Expense-Tracker <commands>

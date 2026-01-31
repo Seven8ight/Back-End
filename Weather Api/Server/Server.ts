@@ -23,6 +23,14 @@ class DB {
     pressure,
     conditions,
     visibility,
+  }: {
+    resolvedAddress: string;
+    humidity: number;
+    temp: number;
+    precip: number;
+    pressure: number;
+    conditions: string;
+    visibility: number;
   }) {
     this.resolvedAddress = resolvedAddress;
     this.humidity = humidity;
@@ -87,7 +95,8 @@ const portNumber = process.env.PORT,
         urlPath = Url.pathname as string,
         parsedResource =
           Url.pathname == "/" ? "html" : path.extname(urlPath).substring(1),
-        mimeType = mimetypes[parsedResource] || "application/octet-stream",
+        mimeType =
+          mimetypes[parsedResource as keyof {}] || "application/octet-stream",
         file = path.join(
           path.resolve(__dirname, "../Client"),
           urlPath == "/" ? "/index.html" : urlPath

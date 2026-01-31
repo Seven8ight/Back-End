@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "Index.js",
   "scripts": {
+    "build": "npx tsc Index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

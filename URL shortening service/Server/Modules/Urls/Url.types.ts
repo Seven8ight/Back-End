@@ -1,17 +1,17 @@
 export type shortURL = {
   id: string;
   url: string;
-  shortCode: string;
-  createdAt: string;
-  updatedAt: string;
-  accessCount: number;
+  shortcode: string;
+  createdat: string;
+  updatedat: string;
+  accesscount: number;
 };
 
 export type PublicShortURL = Omit<shortURL, "createdAt" | "updatedAt">;
 
-export type createShortURLDTO = Pick<shortURL, "url" | "shortCode">;
+export type createShortURLDTO = Pick<shortURL, "url" | "shortcode">;
 export type updateShortURLDTO =
-  | (Pick<shortURL, "shortCode"> &
+  | (Pick<shortURL, "shortcode"> &
       Omit<
         shortURL,
         "id" | "createdAt" | "updatedAt" | "accessCount" | "shortCode"

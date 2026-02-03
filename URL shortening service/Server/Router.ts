@@ -29,6 +29,15 @@ export const Router = async (
         return response.end("URL not found");
       }
 
+      const originalUrlbody = await urlRepo.getOriginalURL(pathNames[0]);
+
+      await urlService.updateShortURL(pathNames[0], {
+        accesscount:
+          (typeof originalUrlbody.accesscount == "string"
+            ? Number.parseInt(originalUrlbody.accesscount)
+            : originalUrlbody.accesscount) + 1,
+      });
+
       response.writeHead(302, {
         location: originalUrl.startsWith("http")
           ? originalUrl
@@ -36,6 +45,7 @@ export const Router = async (
       });
       return response.end();
     } catch (error) {
+      console.log(error);
       response.writeHead(500);
       return response.end(`Internal Server Error, ${(error as Error).message}`);
     }

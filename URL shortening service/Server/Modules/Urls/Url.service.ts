@@ -30,7 +30,6 @@ export class UrlService implements shortURLService {
   }
 
   async getOriginalURL(shortCode: string) {
-    console.log(shortCode);
     if (!shortCode || !shortCode.trim())
       throw new Error("Invalid short code passed in");
 

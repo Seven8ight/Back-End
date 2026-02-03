@@ -115,7 +115,7 @@ export class UrlRepository implements shortURLRepo {
 
         if (originalUrl.rowCount && originalUrl.rowCount > 0) {
           await this.updateShortURL(shortCode, {
-            accessCount: originalUrl.rows[0]!.accessCount + 1,
+            accesscount: originalUrl.rows[0]!.accesscount + 1,
           });
 
           return originalUrl.rows[0]!;

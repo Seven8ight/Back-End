@@ -1,26 +1,35 @@
 import path from "path";
 import fs from "fs/promises";
 import { fileURLToPath } from "url";
-import { pgClient } from "../Config/Config.js";
+import { ConnectToServices, pgClient } from "../Config/Config.js";
 
 const __filename = fileURLToPath(import.meta.url),
   __dirname = path.dirname(__filename),
   __sqlfiles = path.join(__dirname, "/SQL");
 
 const Migrations = async () => {
-  const files = (await fs.readdir(__sqlfiles)).sort();
+  await ConnectToServices();
 
-  for (let file of files) {
-    const sql = await fs.readFile(path.join(__sqlfiles, file), {
-      encoding: "utf-8",
-    });
+  try {
+    const files = (await fs.readdir(__sqlfiles)).sort();
 
-    await pgClient.query(sql);
+    for (let file of files) {
+      const sql = await fs.readFile(path.join(__sqlfiles, file), {
+        encoding: "utf-8",
+      });
 
-    process.stdout.write(`${file} has been queried successfully\n`);
+      await pgClient.query(sql);
+
+      process.stdout.write(`${file} has been queried successfully\n`);
+    }
+
+    process.stdout.write("Migrations complete");
+
+    process.exit(0);
+  } catch (error) {
+    process.stdout.write(`${(error as Error).message}`);
+    process.exit(1);
   }
-
-  process.stdout.write("Migrations complete");
 };
 
 (async () => await Migrations())();

@@ -30,15 +30,12 @@ export class UrlService implements shortURLService {
   }
 
   async getOriginalURL(shortCode: string) {
-    if (!shortCode || shortCode.length <= 0)
+    console.log(shortCode);
+    if (!shortCode || !shortCode.trim())
       throw new Error("Invalid short code passed in");
 
     try {
       const originalURL = await this.urlRepo.getOriginalURL(shortCode);
-
-      await this.urlRepo.updateShortURL(originalURL.shortCode, {
-        accessCount: originalURL.accessCount + 1,
-      });
 
       return originalURL.url;
     } catch (error) {

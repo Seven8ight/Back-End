@@ -1,13 +1,14 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import { Router } from "./Router.js";
 import { ConnectToServices } from "./Config/Config.js";
+import { PORT } from "./Config/Env.js";
 
 const Server = http.createServer(
   (request: IncomingMessage, response: ServerResponse<IncomingMessage>) =>
     Router(request, response),
 );
 
-Server.listen(process.env.PORT || 3000, async () => {
+Server.listen(PORT || 3000, async () => {
   try {
     await ConnectToServices();
 

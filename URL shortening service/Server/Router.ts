@@ -14,13 +14,30 @@ export const Router = async (
   const requestUrl = new URL(request.url!, `http://${request.headers.host}`),
     pathNames = requestUrl.pathname.split("/").filter(Boolean);
 
-  if (pathNames[0] == "shorten") UrlController(request, response);
-  else {
-    const originalUrl = await urlService.getOriginalURL(pathNames[0]!);
+  if (!pathNames[0] || pathNames[0] === "") {
+    response.writeHead(404);
+    return response.end("No shortcode provided");
+  }
 
-    response.writeHead(301, {
-      location: `${originalUrl}`,
-    });
-    response.end();
+  if (pathNames[0] === "shorten") return UrlController(request, response);
+  else {
+    try {
+      const originalUrl = await urlService.getOriginalURL(pathNames[0]);
+
+      if (!originalUrl) {
+        response.writeHead(404);
+        return response.end("URL not found");
+      }
+
+      response.writeHead(302, {
+        location: originalUrl.startsWith("http")
+          ? originalUrl
+          : `https://${originalUrl}`,
+      });
+      return response.end();
+    } catch (error) {
+      response.writeHead(500);
+      return response.end(`Internal Server Error, ${(error as Error).message}`);
+    }
   }
 };

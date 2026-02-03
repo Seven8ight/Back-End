@@ -7,6 +7,10 @@ export const UrlController = (
   request: IncomingMessage,
   response: ServerResponse<IncomingMessage>,
 ) => {
+  const requestUrl = new URL(request.url!, `http://${request.headers.host}`),
+    pathNames = requestUrl.pathname.split("/").filter(Boolean),
+    shortCode = pathNames[1];
+
   const URLRepo = new UrlRepository(pgClient, redisClient),
     URLService = new UrlService(URLRepo);
 
@@ -23,12 +27,9 @@ export const UrlController = (
 
       switch (request.method) {
         case "GET":
-          if (!parsedRequestBody.shortCode)
-            throw new Error("Short code not provided");
+          if (!shortCode) throw new Error("Short code not provided");
 
-          const originalURL = await URLService.getOriginalURL(
-            parsedRequestBody.shortCode,
-          );
+          const originalURL = await URLService.getOriginalURL(shortCode);
 
           response.writeHead(200);
           response.end(JSON.stringify(originalURL));
@@ -46,28 +47,25 @@ export const UrlController = (
 
           break;
         case "PUT":
-          if (!parsedRequestBody.shortCode)
-            throw new Error("Short code not provided");
+          if (!shortCode) throw new Error("Short code not provided");
 
-          const updateShortURL = await URLService.updateShortURL(
-            parsedRequestBody.shortCode,
-            { ...parsedRequestBody },
-          );
+          const updateShortURL = await URLService.updateShortURL(shortCode, {
+            ...parsedRequestBody,
+          });
 
           response.writeHead(200);
           response.end(JSON.stringify(updateShortURL));
 
           break;
         case "DELETE":
-          if (!parsedRequestBody.shortCode)
-            throw new Error("Short code not provided");
+          if (!shortCode) throw new Error("Short code not provided");
 
-          const deleteShortURL = await URLService.deleteShortURL(
-            parsedRequestBody.shortCode,
-          );
+          const deleteShortURL = await URLService.deleteShortURL(shortCode);
 
           response.writeHead(204);
           response.end(deleteShortURL);
+
+          break;
         default:
           response.writeHead(404);
           response.end(
@@ -75,6 +73,8 @@ export const UrlController = (
               error: "Invalid response header sent",
             }),
           );
+
+          break;
       }
     } catch (error) {
       response.writeHead(400);

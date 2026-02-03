@@ -11,4 +11,5 @@ dotenv.config({
 
 export const PG_USERNAME = process.env.POSTGRES_USERNAME,
   PG_PASSWORD = process.env.POSTGRES_PASSWORD,
-  PG_DB = process.env.POSTGRES_DB;
+  PG_DB = process.env.POSTGRES_DB,
+  PORT = process.env.PORT;

@@ -45,7 +45,6 @@ export const Router = async (
       });
       return response.end();
     } catch (error) {
-      console.log(error);
       response.writeHead(500);
       return response.end(`Internal Server Error, ${(error as Error).message}`);
     }

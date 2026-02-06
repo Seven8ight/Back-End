@@ -1,4 +1,4 @@
-import { m } from "motion/react";
+import { PORT } from "./../../../../Server/Config/Env";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
@@ -10,11 +10,11 @@ export const GET = async (request: NextRequest) => {
 
     switch (type) {
       case "all":
-        requestUrl = "http://localhost:4000/shorten?type=all";
+        requestUrl = `http://localhost:${PORT}/shorten?type=all`;
         break;
       case "one": {
         const shortCode = searchParams.get("shortcode");
-        requestUrl = `http://localhost:4000/shorten?type=one&shortcode=${shortCode}`;
+        requestUrl = `http://localhost:${PORT}/shorten?type=one&shortcode=${shortCode}`;
         break;
       }
       default:
@@ -52,7 +52,7 @@ export const POST = async (request: NextRequest) => {
       });
     }
 
-    const generateUrlRequest = await fetch("http://localhost:4000/shorten", {
+    const generateUrlRequest = await fetch(`http://localhost:${PORT}/shorten`, {
         method: "POST",
         body: JSON.stringify(requestBody),
       }),
@@ -90,14 +90,14 @@ export const PUT = async (request: NextRequest) => {
 
     try {
       const updateURLRequest = await fetch(
-          `http://localhost:4000/shorten/${shortCode}`,
+          `http://localhost:${PORT}/shorten/${shortCode}`,
           {
             method: "PUT",
             body: JSON.stringify(requestBody),
           },
         ),
         updateURLResponse = await updateURLRequest.json();
-      console.log(updateURLResponse);
+
       if (!updateURLRequest.ok)
         return NextResponse.json({
           error: updateURLResponse.error,
@@ -132,7 +132,7 @@ export const DELETE = async (request: NextRequest) => {
       });
 
     const deleteRequest = await fetch(
-        `http://localhost:4000/shorten/${shortCode}`,
+        `http://localhost:${PORT}/shorten/${shortCode}`,
         {
           method: "DELETE",
         },

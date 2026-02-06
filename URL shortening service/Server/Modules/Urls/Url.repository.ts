@@ -129,6 +129,17 @@ export class UrlRepository implements shortURLRepo {
     }
   }
 
+  async getAllURLs() {
+    try {
+      const urls: QueryResult<shortURL> =
+        await this.pgClient.query("SELECT * FROM urls");
+
+      return urls.rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deleteShortURL(shortCode: string): Promise<void> {
     try {
       const getCacheItem = await this.getCacheResponse(shortCode);

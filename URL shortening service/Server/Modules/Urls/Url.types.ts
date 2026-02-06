@@ -25,6 +25,7 @@ export interface shortURLRepo {
     newDetails: updateShortURLDTO,
   ) => Promise<shortURL>;
   getOriginalURL: (shortCode: string) => Promise<shortURL>;
+  getAllURLs: () => Promise<shortURL[]>;
   deleteShortURL: (shortCode: string) => Promise<void>;
 }
 
@@ -35,5 +36,6 @@ export interface shortURLService {
     newDetails: updateShortURLDTO,
   ) => Promise<PublicShortURL>;
   getOriginalURL: (shortCode: string) => Promise<string>;
+  getAllURLs: () => Promise<shortURL[]>;
   deleteShortURL: (shortCode: string) => Promise<void>;
 }

@@ -42,6 +42,16 @@ export class UrlService implements shortURLService {
     }
   }
 
+  async getAllURLs() {
+    try {
+      const allUrls = await this.urlRepo.getAllURLs();
+
+      return allUrls;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deleteShortURL(shortCode: string) {
     if (!shortCode || shortCode.length <= 0)
       throw new Error("Invalid short code passed in");

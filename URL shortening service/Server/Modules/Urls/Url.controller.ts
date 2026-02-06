@@ -15,7 +15,7 @@ export const UrlController = (
     URLService = new UrlService(URLRepo);
 
   let unparsedRequestBody: string = "";
-
+  console.log(requestUrl);
   request.on(
     "data",
     (data: Buffer) => (unparsedRequestBody += data.toString()),
@@ -27,12 +27,32 @@ export const UrlController = (
 
       switch (request.method) {
         case "GET":
-          if (!shortCode) throw new Error("Short code not provided");
+          const searchParam = requestUrl.searchParams,
+            type = searchParam.get("type");
 
-          const originalURL = await URLService.getOriginalURL(shortCode);
+          if (type == "all") {
+            const allUrls = await URLService.getAllURLs();
 
-          response.writeHead(200);
-          response.end(JSON.stringify(originalURL));
+            response.writeHead(200);
+            response.end(JSON.stringify(allUrls));
+          } else {
+            const shortCode = searchParam.get("shortcode");
+
+            if (!shortCode) {
+              response.writeHead(400);
+              response.end(
+                JSON.stringify({
+                  error: "Short code not provided",
+                }),
+              );
+              return;
+            }
+
+            const originalUrl = await URLService.getOriginalURL(shortCode);
+
+            response.writeHead(200);
+            response.end(JSON.stringify({ url: originalUrl }));
+          }
 
           break;
         case "POST":

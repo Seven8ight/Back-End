@@ -15,7 +15,7 @@ export const UrlController = (
     URLService = new UrlService(URLRepo);
 
   let unparsedRequestBody: string = "";
-  console.log(requestUrl);
+
   request.on(
     "data",
     (data: Buffer) => (unparsedRequestBody += data.toString()),

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { motion } from "motion/react";
 
 export type shortURL = {
   id: string;
@@ -47,9 +48,9 @@ export default function Home() {
       });
     }
   };
-  console.log(generatedUrl);
+
   return (
-    <div>
+    <motion.div>
       <div
         id="form"
         className="w-3/4 m-auto shadow-2xl p-5 rounded-2xl relative top-60"
@@ -82,8 +83,14 @@ export default function Home() {
         {generatedUrl && (
           <div>
             <h2 className="text-2xl font-semibold mb-5">Generated URL</h2>
+            <h3>{generatedUrl.url}</h3>
+            <Button variant={"link"}>
+              <Link href={`http://localhost:4000/${generatedUrl.shortcode}`}>
+                http://localhost:4000/{generatedUrl.shortcode}
+              </Link>
+            </Button>
             <div className="mb-5">
-              <h2>{generatedUrl.createdat}</h2>
+              <h4>{generatedUrl.createdat}</h4>
             </div>
             <Button>
               <Link
@@ -96,6 +103,6 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

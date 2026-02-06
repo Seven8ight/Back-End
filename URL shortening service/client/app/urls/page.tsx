@@ -14,13 +14,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { motion } from "motion/react";
 
 const Urls = (): React.ReactNode => {
-  const [Urls, setUrls] = useState<shortURL[]>([]);
+  const [Urls, setUrls] = useState<shortURL[]>([]),
+    [newUrl, setUrl] = useState<string>("");
 
-  useEffect(() => {
-    (async () => {
+  const fetchUrls = async () => {
       const urlsFetch = await fetch("/api/urls?type=all", {
           method: "GET",
         }),
@@ -32,13 +44,67 @@ const Urls = (): React.ReactNode => {
       }
 
       setUrls(urlsResponse);
+    },
+    updateHandler = async (shortCode: string) => {
+      if (newUrl.length <= 0) toast.error("Url input must be provided");
+      else if (!newUrl.includes("http") && !newUrl.includes("https"))
+        toast.error("Url not valid");
+
+      try {
+        const updateRequest = await fetch(`/api/urls?shortcode=${shortCode}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              url: newUrl,
+            }),
+          }),
+          updateResponse = await updateRequest.json();
+
+        if (!updateRequest.ok) {
+          toast.error(`Error: ${updateResponse.error}`);
+          return;
+        }
+
+        toast.success("Url updated successfully");
+        await fetchUrls();
+      } catch (error) {
+        toast.error(`Error: ${(error as Error).message}`);
+      }
+    },
+    deleteHandler = async (shortCode: string) => {
+      try {
+        const deleteRequest = await fetch(`/api/urls?shortcode=${shortCode}`, {
+            method: "DELETE",
+          }),
+          deleteResponse = await deleteRequest.json();
+
+        if (!deleteRequest.ok) {
+          toast.error(`Error: ${deleteResponse.error}`);
+          return;
+        }
+
+        toast.success("Short url deleted successfully", {
+          position: "top-center",
+        });
+        await fetchUrls();
+      } catch (error) {
+        toast.error(`Error: ${(error as Error).message}`);
+      }
+    };
+
+  useEffect(() => {
+    (async () => {
+      await fetchUrls();
     })();
   }, []);
 
   return (
     <>
       {Urls.map((url) => (
-        <div className="relative top-10 w-[95vw] m-auto mb-10" key={url.id}>
+        <motion.div
+          layout
+          className="relative top-10 w-[95vw] m-auto mb-10"
+          key={url.id}
+        >
           <div id="url" className="shadow-xl rounded-xl p-5 relative">
             <div
               id="liner"
@@ -80,22 +146,50 @@ const Urls = (): React.ReactNode => {
                           type="text"
                           className="mb-5"
                           placeholder="new url for short code"
+                          value={newUrl}
+                          onChange={(event) => setUrl(event.target.value)}
                         />
                         <div
                           id="buttons"
                           className="flex flex-row justify-between"
                         >
-                          <Button variant={"destructive"}>
-                            <i className="fa-solid fa-trash-can"></i>
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant={"destructive"}>
+                                <i className="fa-solid fa-trash-can"></i>
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will
+                                  permanently delete your account from our
+                                  servers.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteHandler(url.shortcode)}
+                                >
+                                  Continue
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                           <div>
-                            <Button variant={"default"} className="mr-3">
+                            <Button
+                              variant={"default"}
+                              className="mr-3"
+                              onClick={() => updateHandler(url.shortcode)}
+                            >
                               Submit
                             </Button>
                             <DialogClose asChild>
-                              <Button variant={"secondary"} className="">
-                                Cancel
-                              </Button>
+                              <Button variant={"secondary"}>Cancel</Button>
                             </DialogClose>
                           </div>
                         </div>
@@ -106,7 +200,7 @@ const Urls = (): React.ReactNode => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       ))}
     </>
   );

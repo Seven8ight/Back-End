@@ -1,3 +1,4 @@
+import { m } from "motion/react";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (request: NextRequest) => {
@@ -73,6 +74,46 @@ export const POST = async (request: NextRequest) => {
 
 export const PUT = async (request: NextRequest) => {
   try {
+    const shortCode = request.nextUrl.searchParams.get("shortcode"),
+      requestBody = await request.json();
+
+    if (!shortCode) {
+      return NextResponse.json({
+        error: "Shortcode not provided",
+      });
+    }
+
+    if (!requestBody.url)
+      return NextResponse.json({
+        error: "New url not provided",
+      });
+
+    try {
+      const updateURLRequest = await fetch(
+          `http://localhost:4000/shorten/${shortCode}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(requestBody),
+          },
+        ),
+        updateURLResponse = await updateURLRequest.json();
+      console.log(updateURLResponse);
+      if (!updateURLRequest.ok)
+        return NextResponse.json({
+          error: updateURLResponse.error,
+        });
+
+      return NextResponse.json(
+        {},
+        {
+          status: 200,
+        },
+      );
+    } catch (error) {
+      return NextResponse.json({
+        error: (error as Error).message,
+      });
+    }
   } catch (error) {
     return NextResponse.json({
       error: (error as Error).message,
@@ -82,6 +123,35 @@ export const PUT = async (request: NextRequest) => {
 
 export const DELETE = async (request: NextRequest) => {
   try {
+    const searchParams = request.nextUrl.searchParams,
+      shortCode = searchParams.get("shortcode");
+
+    if (!shortCode)
+      return NextResponse.json({
+        error: "Shortcode not provided",
+      });
+
+    const deleteRequest = await fetch(
+        `http://localhost:4000/shorten/${shortCode}`,
+        {
+          method: "DELETE",
+        },
+      ),
+      deleteResponse = await deleteRequest.json();
+
+    if (!deleteRequest.ok)
+      return NextResponse.json(
+        {
+          error: deleteResponse.error,
+        },
+        {
+          status: deleteRequest.status,
+        },
+      );
+
+    return NextResponse.json(deleteResponse, {
+      status: deleteRequest.status,
+    });
   } catch (error) {
     return NextResponse.json({
       error: (error as Error).message,

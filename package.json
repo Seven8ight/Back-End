@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Seven8ight/Back-End#readme",
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
     "@types/cors": "^2.8.18",
     "@types/ejs": "^3.1.5",
     "@types/formidable": "^3.4.6",
@@ -27,11 +28,14 @@
     "@types/pg": "^8.15.2",
     "@types/redis": "^4.0.10",
     "@types/showdown": "^2.0.6",
+    "@types/socket.io": "^3.0.1",
+    "@types/socket.io-client": "^1.4.36",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "amqplib": "^0.10.9",
     "chalk": "^4.1.2",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
@@ -41,6 +45,8 @@
     "pg": "^8.16.0",
     "redis": "^5.0.1",
     "showdown": "^2.1.0",
-    "simple-spellchecker": "^1.0.2"
+    "simple-spellchecker": "^1.0.2",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
   }
 }

@@ -84,10 +84,10 @@ const port = process.env.PORT,
                     response.end(jsonResponse(user));
                   }
                 } else {
-                  delete user[0].password;
+                  delete (user as any)[0].password;
 
                   response.writeHead(200);
-                  response.end(jsonResponse(user[0]));
+                  response.end(jsonResponse((user as any)[0]));
                 }
               }
               break;

@@ -2,10 +2,7 @@ import http, { IncomingMessage, ServerResponse } from "http";
 import { SERVER_PORT } from "./Config/Env";
 import { IoServer } from "./Infrastructure/Sockets/Server";
 import { Info } from "./Utils/Logger";
-import {
-  rabbitMQ,
-  RabbitMQService,
-} from "./Infrastructure/Message-Broker/RabbitMQ";
+import { rabbitMQ } from "./Infrastructure/Message-Broker/RabbitMQ";
 import { connectDatabase } from "./Config/Database";
 
 const httpServer = http.createServer(

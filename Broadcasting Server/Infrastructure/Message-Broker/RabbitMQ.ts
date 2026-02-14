@@ -6,7 +6,7 @@ export class RabbitMQService {
   private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
   private readonly exchange = "broadcast";
-  private readonly queue = "chat-persistent-log"; // durable queue name
+  private readonly queue = "chat-persistent-log";
 
   async connect(): Promise<void> {
     try {
@@ -14,30 +14,26 @@ export class RabbitMQService {
       this.channel = await this.connection.createChannel();
 
       await this.channel.assertExchange(this.exchange, "fanout", {
-        durable: false, // exchange itself usually non-durable for broadcasts
+        durable: false,
       });
 
-      // Important: durable queue + not exclusive
       await this.channel.assertQueue(this.queue, {
-        durable: true, // survives broker restart
+        durable: true,
         autoDelete: false,
         exclusive: false,
       });
 
       await this.channel.bindQueue(this.queue, this.exchange, "");
 
-      // Start consuming once
       this.startConsuming();
     } catch (err) {
       LogError(`RabbitMQ connection failed: ${(err as Error).message}`);
-      // Optional: setTimeout(() => this.connect(), 5000); // reconnect logic
     }
   }
 
   private startConsuming() {
     if (!this.channel) return;
 
-    // You usually want ack:true in production
     this.channel.consume(
       this.queue,
       async (msg: ConsumeMessage | null) => {
@@ -51,7 +47,7 @@ export class RabbitMQService {
             [content.socketid, content.username, content.message],
           );
 
-          this.channel!.ack(msg); // ← important in production
+          this.channel!.ack(msg);
         } catch (err) {
           LogError(`Consume error: ${(err as Error).message}`);
           this.channel!.nack(msg, false, true); // requeue

@@ -1,5 +1,5 @@
 import amqp, { ConsumeMessage } from "amqplib";
-import { Error as LogError, Info } from "../../Utils/Logger";
+import { Error as LogError } from "../../Utils/Logger";
 import { pg } from "../../Config/Database";
 
 export class RabbitMQService {

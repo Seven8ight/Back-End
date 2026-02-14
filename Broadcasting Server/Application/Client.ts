@@ -13,11 +13,10 @@ async function askQuestion(question: string): Promise<string> {
 }
 
 async function main() {
-  let username: string | null = null;
-  let client: IoClient | null = null;
+  let username: string | null = null,
+    client: IoClient | null = null;
 
   try {
-    // Username selection loop
     while (!username) {
       const input = await askQuestion("Enter your username: ");
 
@@ -49,7 +48,9 @@ async function main() {
       return;
     }
 
-    console.log("\nType your message and press Enter. Type 'exit' to quit.\n");
+    process.stdout.write(
+      "\nType your message and press Enter. Type 'exit' to quit.\n",
+    );
 
     while (true) {
       const message = await askQuestion("> ");

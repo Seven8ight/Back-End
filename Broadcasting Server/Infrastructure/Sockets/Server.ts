@@ -40,8 +40,7 @@ export class IoServer {
         socket.emit("Username accepted", trimmed);
         Info(`${trimmed} joined the chat`);
 
-        // Optional: broadcast who joined
-        // this.io.emit("user joined", trimmed);
+        socket.broadcast.emit("user joined", trimmed);
       });
 
       socket.on("Message sent", async (message: string) => {

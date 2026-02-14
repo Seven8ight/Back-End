@@ -20,7 +20,6 @@ export class IoClient {
   private setupEventListeners() {
     this.socket.on("connect", () => {
       Info("Connected to server");
-      // Do NOT auto-join here — wait for explicit join call
     });
 
     this.socket.on("connect_error", (error: Error) => {
@@ -37,7 +36,6 @@ export class IoClient {
       Warning("Username already exists");
       this.error = "Username already exists";
       this.isConnected = false;
-      // Here you can trigger UI to ask for new username
     });
 
     this.socket.on(
@@ -45,6 +43,10 @@ export class IoClient {
       (data: { username: string; message: string }) => {
         Message(data.username, data.message);
       },
+    );
+
+    this.socket.on("user joined", (username: string) =>
+      Info(`${username} has joined the chat`),
     );
 
     this.socket.on("disconnect", (reason: string) => {

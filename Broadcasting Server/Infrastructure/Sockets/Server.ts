@@ -1,9 +1,11 @@
 import { Server, Socket } from "socket.io";
 import http from "http";
 import { Info, Message, Warning, Error } from "../../Utils/Logger";
+import { rabbitMQ } from "../Message-Broker/RabbitMQ";
 
 export class IoServer {
   io: Server;
+
   users: Map<string, string> = new Map();
 
   constructor(httpServer: http.Server) {
@@ -42,7 +44,7 @@ export class IoServer {
         // this.io.emit("user joined", trimmed);
       });
 
-      socket.on("Message sent", (message: string) => {
+      socket.on("Message sent", async (message: string) => {
         const username = this.users.get(socket.id);
         if (!username) {
           socket.emit("error", "You are not joined");
@@ -56,6 +58,14 @@ export class IoServer {
           username,
           message: message.trim(),
         });
+
+        await rabbitMQ.publish(
+          JSON.stringify({
+            socketid: socket.id,
+            username: username,
+            message: message,
+          }),
+        );
       });
 
       socket.on("disconnect", (reason) => {

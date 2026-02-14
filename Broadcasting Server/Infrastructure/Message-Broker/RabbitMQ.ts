@@ -53,7 +53,7 @@ export class RabbitMQService {
           this.channel!.nack(msg, false, true); // requeue
         }
       },
-      { noAck: false }, // change to true only for testing
+      { noAck: false },
     );
   }
 
